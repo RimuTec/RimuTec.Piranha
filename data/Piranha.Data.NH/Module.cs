@@ -6,7 +6,7 @@ namespace RimuTec.Piranha.Data.NH
     {
         public string Author => "RimuTec Ltd";
 
-        public string Name => throw new System.NotImplementedException();
+        public string Name => GetType().Assembly.FullName.Split(',')[0];
 
         public string Version => throw new System.NotImplementedException();
 

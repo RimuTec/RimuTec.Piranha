@@ -12,5 +12,12 @@ namespace RimuTec.Piranha.Data.NH.Tests
             var module = new Module();
             Assert.AreEqual("RimuTec Ltd", module.Author);
         }
+
+        [Test]
+        public void Name()
+        {
+            var module = new Module();
+            Assert.AreEqual("RimuTec.Piranha.Data.NH", module.Name);
+        }
     }
 }
