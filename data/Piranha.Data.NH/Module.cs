@@ -18,7 +18,6 @@ namespace RimuTec.Piranha.Data.NH
 
         public void Init()
         {
-            throw new System.NotImplementedException();
         }
     }
 }
