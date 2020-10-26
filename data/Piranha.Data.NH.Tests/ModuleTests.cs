@@ -35,5 +35,12 @@ namespace RimuTec.Piranha.Data.NH.Tests
             var module = new Module();
             Assert.AreEqual("Data implementation for NHibnernate.", module.Description);
         }
+
+        [Test]
+        public void PackageUrl()
+        {
+            var module = new Module();
+            Assert.AreEqual("tbd", module.PackageUrl);
+        }
     }
 }

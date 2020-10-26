@@ -12,7 +12,7 @@ namespace RimuTec.Piranha.Data.NH
 
         public string Description => "Data implementation for NHibnernate.";
 
-        public string PackageUrl => throw new System.NotImplementedException();
+        public string PackageUrl => "tbd";
 
         public string IconUrl => throw new System.NotImplementedException();
 
