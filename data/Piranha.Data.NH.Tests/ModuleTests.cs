@@ -42,5 +42,12 @@ namespace RimuTec.Piranha.Data.NH.Tests
             var module = new Module();
             Assert.AreEqual("tbd", module.PackageUrl);
         }
+
+        [Test]
+        public void IconUrl()
+        {
+            var module = new Module();
+            Assert.AreEqual("tbd", module.IconUrl);
+        }
     }
 }

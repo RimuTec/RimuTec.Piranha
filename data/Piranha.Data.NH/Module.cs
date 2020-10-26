@@ -14,7 +14,7 @@ namespace RimuTec.Piranha.Data.NH
 
         public string PackageUrl => "tbd";
 
-        public string IconUrl => throw new System.NotImplementedException();
+        public string IconUrl => "tbd";
 
         public void Init()
         {
