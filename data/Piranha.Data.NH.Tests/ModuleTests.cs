@@ -1,6 +1,5 @@
 using System;
 using NUnit.Framework;
-using RimuTec.Piranha.Data.NH;
 
 namespace RimuTec.Piranha.Data.NH.Tests
 {
@@ -28,6 +27,13 @@ namespace RimuTec.Piranha.Data.NH.Tests
             var daysSinceThen = Math.Round(DateTime.Now.Subtract(jan2020).TotalDays);
             var module = new Module();
             Assert.AreEqual($"0.9.{daysSinceThen}.1728", module.Version);
+        }
+
+        [Test]
+        public void Description()
+        {
+            var module = new Module();
+            Assert.AreEqual("Data implementation for NHibnernate.", module.Description);
         }
     }
 }

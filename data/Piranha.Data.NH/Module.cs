@@ -10,7 +10,7 @@ namespace RimuTec.Piranha.Data.NH
 
         public string Version => GetType().Assembly.FullName.Split(',')[1].Trim().Split('=')[1];
 
-        public string Description => throw new System.NotImplementedException();
+        public string Description => "Data implementation for NHibnernate.";
 
         public string PackageUrl => throw new System.NotImplementedException();
 
