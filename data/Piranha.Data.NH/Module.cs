@@ -1,3 +1,4 @@
+using Piranha;
 using Piranha.Extend;
 
 namespace RimuTec.Piranha.Data.NH
@@ -8,7 +9,7 @@ namespace RimuTec.Piranha.Data.NH
 
         public string Name => GetType().Assembly.FullName.Split(',')[0];
 
-        public string Version => GetType().Assembly.FullName.Split(',')[1].Trim().Split('=')[1];
+        public string Version => Utils.GetAssemblyVersion(GetType().Assembly);
 
         public string Description => "Data implementation for NHibnernate.";
 
