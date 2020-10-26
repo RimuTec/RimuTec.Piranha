@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Company>RimuTec Ltd</Company>
+        <Authors>RimuTec Ltd</Authors>
+        <Description>Data components for Fluent NHibernate</Description>
+        <Copyright>Copyright (c) RimuTec Ltd</Copyright>
+        <PackageTags>cms mvc aspnetcore netstandard</PackageTags>
+        <PackageLicensExpression>MIT</PackageLicensExpression>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+</Project>
