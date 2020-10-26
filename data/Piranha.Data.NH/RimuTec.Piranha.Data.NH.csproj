@@ -9,4 +9,7 @@
         <PackageLicensExpression>MIT</PackageLicensExpression>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="Piranha" Version="8.4.2" />
+    </ItemGroup>
 </Project>

@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{8B6B274C-E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RimuTec.Piranha.Data.NH", "data\Piranha.Data.NH\RimuTec.Piranha.Data.NH.csproj", "{1050B9C1-5A2D-4304-908B-DDD944CF4152}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RimuTec.Piranha.Data.NH.Tests", "data\Piranha.Data.NH.Tests\RimuTec.Piranha.Data.NH.Tests.csproj", "{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,8 +34,21 @@ Global
 		{1050B9C1-5A2D-4304-908B-DDD944CF4152}.Release|x64.Build.0 = Release|Any CPU
 		{1050B9C1-5A2D-4304-908B-DDD944CF4152}.Release|x86.ActiveCfg = Release|Any CPU
 		{1050B9C1-5A2D-4304-908B-DDD944CF4152}.Release|x86.Build.0 = Release|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Debug|x64.Build.0 = Debug|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Debug|x86.Build.0 = Debug|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Release|x64.ActiveCfg = Release|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Release|x64.Build.0 = Release|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Release|x86.ActiveCfg = Release|Any CPU
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{6D66466F-E6D0-47E8-BE94-55CCA08C2F65} = {8B6B274C-E8B1-4659-B287-AB706E961169}
 		{1050B9C1-5A2D-4304-908B-DDD944CF4152} = {8B6B274C-E8B1-4659-B287-AB706E961169}
 	EndGlobalSection
 EndGlobal
