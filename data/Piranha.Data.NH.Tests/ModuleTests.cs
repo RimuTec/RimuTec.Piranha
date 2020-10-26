@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using RimuTec.Piranha.Data.NH;
 
@@ -18,6 +19,15 @@ namespace RimuTec.Piranha.Data.NH.Tests
         {
             var module = new Module();
             Assert.AreEqual("RimuTec.Piranha.Data.NH", module.Name);
+        }
+
+        [Test]
+        public void Version()
+        {
+            var jan2020 = new DateTime(2000,01,01);
+            var daysSinceThen = Math.Round(DateTime.Now.Subtract(jan2020).TotalDays);
+            var module = new Module();
+            Assert.AreEqual($"0.9.{daysSinceThen}.1728", module.Version);
         }
     }
 }

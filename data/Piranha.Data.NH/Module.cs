@@ -8,7 +8,7 @@ namespace RimuTec.Piranha.Data.NH
 
         public string Name => GetType().Assembly.FullName.Split(',')[0];
 
-        public string Version => throw new System.NotImplementedException();
+        public string Version => GetType().Assembly.FullName.Split(',')[1].Trim().Split('=')[1];
 
         public string Description => throw new System.NotImplementedException();
 
