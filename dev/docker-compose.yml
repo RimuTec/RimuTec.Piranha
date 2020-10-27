@@ -10,7 +10,8 @@ services:
             - "..:/app"
         depends_on:
             - database
-        command: sleep infinity
+        command: >
+            bash -c "pwsh /app/dev/init.ps1 && sleep infinity"
 
     database:
         image: mcr.microsoft.com/mssql/server
