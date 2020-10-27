@@ -2,9 +2,21 @@ version: '3.7'
 
 services:
     rimutec-piranha:
+        container_name: rimutec-piranha-dev
         build:
             context: .
         working_dir: /app
         volumes:
             - "..:/app"
+        depends_on:
+            - database
         command: sleep infinity
+
+    database:
+        image: mcr.microsoft.com/mssql/server
+        container_name: rimutec-piranha-dev-db
+        environment:
+            - ACCEPT_EULA=Y
+            - SA_PASSWORD=RimuTec123
+        ports:
+            - 7605:1433

@@ -2,8 +2,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
 
-        <Version>0.9.7604.1728</Version>
-        <!-- <FileVersion>0.9.7604.1728</FileVersion> -->
+        <Version>0.9.7605.2128</Version>
 
         <Company>RimuTec Ltd</Company>
         <Authors>RimuTec Ltd</Authors>
@@ -14,6 +13,11 @@
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
     <ItemGroup>
+      <PackageReference Include="Autofac.Extras.DynamicProxy" Version="6.0.0" />
+      <PackageReference Include="FluentMigrator.Extensions.SqlServer" Version="3.2.9" />
+      <PackageReference Include="FluentMigrator.Runner" Version="3.2.9" />
+      <PackageReference Include="FluentNHibernate" Version="3.0.1" />
+      <PackageReference Include="NHibernate" Version="5.3.3" />
       <PackageReference Include="Piranha" Version="8.4.2" />
     </ItemGroup>
 </Project>
