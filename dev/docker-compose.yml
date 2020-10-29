@@ -14,10 +14,10 @@ services:
             bash -c "pwsh /app/dev/init.ps1 && sleep infinity"
 
     database:
-        image: mcr.microsoft.com/mssql/server
         container_name: rimutec-piranha-dev-db
+        image: mcr.microsoft.com/mssql/server
         environment:
             - ACCEPT_EULA=Y
-            - SA_PASSWORD=RimuTec123
+            - SA_PASSWORD=PassWord42
         ports:
             - 7605:1433

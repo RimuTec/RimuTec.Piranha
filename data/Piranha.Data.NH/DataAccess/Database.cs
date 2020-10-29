@@ -68,6 +68,6 @@ namespace RimuTec.Piranha.Data.DataAccess
             runner.MigrateUp();
         }
 
-        private const string ConnectionString = "Server=database,1433;Database=rimutec-piranha;User ID=sa;Password=RimuTec123";
+        private const string ConnectionString = "Server=database,1433;Database=rimutec-piranha;User ID=sa;Password=PassWord42";
     }
 }

@@ -13,7 +13,7 @@ do
 {
     try
     {
-        Invoke-Sqlcmd -ServerInstance "database,1433" -Username SA -Password RimuTec123 -Query "CREATE DATABASE [rimutec-piranha]";
+        Invoke-Sqlcmd -ServerInstance "database,1433" -Username SA -Password PassWord42 -Query "CREATE DATABASE [rimutec-piranha]";
         Write-Host "Database rimutec-piranha created successfully."
         break;
     }
@@ -23,5 +23,5 @@ do
         Write-Host "Retrying..."
     }            
     $attempts--
-    if ($attempts -gt 0) { sleep $sleepInSeconds }
+    if ($attempts -gt 0) { Start-Sleep $sleepInSeconds }
 } while ($attempts -gt 0)
