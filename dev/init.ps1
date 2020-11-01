@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 #requires -PSEdition Core
 # Additional steps to initialize the development container
 
