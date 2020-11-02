@@ -1,0 +1,41 @@
+trigger: none
+#  - main
+
+variables:
+  RESOURCE_GROUP: buildpipeline
+  LOCATION: eastus
+
+# resources:
+#   containers:
+#   - container: database
+#     image: microsoft/mssql-server-windows-developer
+#     ports:
+#     - 7605:1433
+#     env:
+#       ACCEPT_EULA: Y
+#       SA_PASSWORD: PassWord42
+
+jobs:
+    - job: Windows
+      pool:
+        vmImage: 'windows-2019'
+
+      steps:
+
+        - task: AzureCLI@2
+          displayName: Create Azure resources
+          inputs:
+            azureSubscription: RimutecAzure
+            scriptType: pscore
+            scriptPath: pipeline/before-build.ps1
+
+        - script: echo hello from windows
+
+        - task: AzureCLI@2
+          displayName: Tear down Azure resources
+          condition: always()
+          inputs:
+            azureSubscription: RimutecAzure
+            scriptType: pscore
+            scriptPath: pipeline/after-build.ps1
+
