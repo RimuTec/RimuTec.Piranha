@@ -1,0 +1,9 @@
+trigger:
+    - main
+
+jobs:
+- job: Windows
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - script echo hello from windows
