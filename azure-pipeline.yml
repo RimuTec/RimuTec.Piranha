@@ -3,6 +3,15 @@ trigger:
 
 jobs:
 - job: Windows
+  resources:
+    containers:
+    - container: database
+      image: mcr.microsoft.com/mssql/server
+      ports:
+      - 7605:1433
+      env:
+        ACCEPT_EULA: Y
+        SA_PASSWORD: PassWord42
   pool:
     vmImage: 'windows-2019'
   steps:
