@@ -4,7 +4,7 @@ trigger:
 resources:
   containers:
   - container: database
-    image: mcr.microsoft.com/mssql/server
+    image: microsoft/mssql-server-windows-developer
     ports:
     - 7605:1433
     env:
