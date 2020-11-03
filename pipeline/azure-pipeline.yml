@@ -25,7 +25,7 @@ jobs:
         - task: AzureCLI@2
           displayName: Create Azure resources
           inputs:
-            azureSubscription: RimutecAzure
+            azureSubscription: RimutecRM
             scriptType: pscore
             scriptPath: pipeline/before-build.ps1
 
@@ -35,7 +35,7 @@ jobs:
           displayName: Tear down Azure resources
           condition: always()
           inputs:
-            azureSubscription: RimutecAzure
+            azureSubscription: RimutecRM
             scriptType: pscore
             scriptPath: pipeline/after-build.ps1
 
