@@ -5,7 +5,7 @@ using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate;
 
-namespace RimuTec.Piranha.Data.DataAccess
+namespace RimuTec.Piranha.Data.NH.DataAccess
 {
         public class Database
     {

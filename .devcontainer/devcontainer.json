@@ -10,7 +10,8 @@
         "josefpihrt-vscode.roslynator",
         "formulahendry.dotnet-test-explorer",
         "fernandoescolar.vscode-solution-explorer",
-		"eamodio.gitlens",
+        "eamodio.gitlens",
+        "editorconfig.editorconfig",
 		"ms-vscode.powershell",
 		"shd101wyy.markdown-preview-enhanced"
     ],

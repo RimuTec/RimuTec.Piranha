@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
 using NHibernate.Linq;
 using Piranha.Models;
 using Piranha.Repositories;
+using RimuTec.Piranha.Data.NH.Entities;
 
-namespace RimuTec.Piranha.Repositories
+namespace RimuTec.Piranha.Data.NH.Repositories
 {
     public class AliasRepository : IAliasRepository
     {
@@ -26,9 +26,9 @@ namespace RimuTec.Piranha.Repositories
         public async Task<IEnumerable<Alias>> GetAll(Guid siteId)
         {
             List<Alias> aliases = new List<Alias>();
-            using(var session = SessionFactory.OpenSession())
+            using (var session = SessionFactory.OpenSession())
             {
-                using(var txn = session.BeginTransaction())
+                using (var txn = session.BeginTransaction())
                 {
                     aliases.AddRange(await session.Query<Alias>().ToListAsync().ConfigureAwait(false));
                     await txn.CommitAsync().ConfigureAwait(false);
@@ -52,9 +52,28 @@ namespace RimuTec.Piranha.Repositories
             throw new NotImplementedException();
         }
 
-        public Task Save(Alias model)
+        public async Task Save(Alias model)
         {
-            throw new NotImplementedException();
+            using (var session = SessionFactory.OpenSession())
+            {
+                try
+                {
+                    using (var txn = session.BeginTransaction())
+                    {
+                        AliasEntity entity = session.Get<AliasEntity>(model.Id) ?? new AliasEntity();
+                        entity.Site = session.Get<SiteEntity>(model.SiteId);
+                        entity.AliasUrl = model.AliasUrl;
+                        entity.RedirectUrl = model.AliasUrl;
+                        entity.Type = model.Type;
+                        await session.SaveOrUpdateAsync(entity).ConfigureAwait(false);
+                        await txn.CommitAsync().ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
         }
     }
 }

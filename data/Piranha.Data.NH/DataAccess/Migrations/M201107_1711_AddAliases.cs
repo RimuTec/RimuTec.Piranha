@@ -2,22 +2,22 @@ using FluentMigrator;
 
 namespace RimuTec.Piranha.Data.NH.DataAccess.Migrations
 {
-    [Migration(20201027_2137)]
-    public class M20201027_2137_AddAliases : UpOnlyMigration
+    [Migration(201107_1711)]
+    public class M201107_1711_AddAliases : UpOnlyMigration
     {
         public override void Up()
         {
-            const string TableName = "Aliases";
+            const string TableName = "Alias";
             const string SiteIdColumn = "SiteId";
             const string AliasUrlColumn = "AliasUrl";
             Create.Table(TableName)
                 .WithColumn("Id").AsGuid().NotNullable().PrimaryKey()
-                .WithColumn("Created").AsDateTimeOffset().NotNullable()
-                .WithColumn("LastModified").AsDateTimeOffset().NotNullable()
+                .WithColumn("Created").AsDateTime2().NotNullable()
+                .WithColumn("LastModified").AsDateTime2().NotNullable()
                 .WithColumn(AliasUrlColumn).AsString(256).NotNullable()
                 .WithColumn("RedirectUrl").AsString(256).NotNullable()
                 .WithColumn(SiteIdColumn).AsGuid().NotNullable()
-                .WithColumn("Type").AsInt32().NotNullable()
+                .WithColumn("Type").AsString().NotNullable()
                 ;
 
             Create.Index($"IX_{TableName}_{SiteIdColumn}_{AliasUrlColumn}")
