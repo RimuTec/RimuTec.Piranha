@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
+using NHibernate.Linq;
 using Piranha.Extend.Fields;
 using Piranha.Models;
 using Piranha.Repositories;
@@ -30,14 +31,14 @@ namespace RimuTec.Piranha.Data.NH.Repositories
             using(var session = SessionFactory.OpenSession()) {
                 using(var txn = session.BeginTransaction())
                 {
-                    var entities = session.Query<SiteEntity>();
+                    var entities = await session.Query<SiteEntity>().ToListAsync().ConfigureAwait(false);
                     models.AddRange(entities.Select(e => new Site {
                         Id = e.Id,
                         SiteTypeId = e.SiteTypeId,
                         Title = e.Title,
                         InternalId = e.InternalId,
                         Description = e.Description,
-                        Logo = e.LogoId.HasValue ? e.LogoId.Value : new ImageField(),
+                        Logo = e.LogoId ?? new ImageField(),
                         Hostnames = e.Hostnames,
                         IsDefault = e.IsDefault,
                         Culture = e.Culture,
@@ -45,7 +46,7 @@ namespace RimuTec.Piranha.Data.NH.Repositories
                         Created = e.Created,
                         LastModified = e.LastModified
                     }));
-                    txn.Commit();
+                    await txn.CommitAsync().ConfigureAwait(false);
                 }
             }
             return models;
@@ -56,9 +57,38 @@ namespace RimuTec.Piranha.Data.NH.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Site> GetByInternalId(string internalId)
+        public async Task<Site> GetByInternalId(string internalId)
         {
-            throw new NotImplementedException();
+            Site siteModel = null;
+
+            using(var session = SessionFactory.OpenSession())
+            {
+                using(var txn = session.BeginTransaction())
+                {
+                    var entities = await session.Query<SiteEntity>().ToListAsync().ConfigureAwait(false);
+                    var siteEntity = entities.First(s => s.InternalId == internalId);
+                    if(siteEntity != null)
+                    {
+                        siteModel = new Site
+                        {
+                            Id = siteEntity.Id,
+                            ContentLastModified = siteEntity.ContentLastModified,
+                            Created = siteEntity.Created,
+                            Culture = siteEntity.Culture,
+                            Description = siteEntity.Description,
+                            Hostnames = siteEntity.Hostnames,
+                            InternalId = siteEntity.InternalId,
+                            IsDefault = siteEntity.IsDefault,
+                            LastModified = siteEntity.LastModified,
+                            Logo = siteEntity.LogoId,
+                            SiteTypeId = siteEntity.SiteTypeId,
+                            Title = siteEntity.Title
+                        };
+                    }
+                    await txn.CommitAsync().ConfigureAwait(false);
+                }
+            }
+            return siteModel;
         }
 
         public Task<DynamicSiteContent> GetContentById(Guid id)
@@ -91,8 +121,21 @@ namespace RimuTec.Piranha.Data.NH.Repositories
                     {
                         try
                         {
-                            SiteEntity entity = session.Get<SiteEntity>(model.Id) ?? new SiteEntity();
-                            // TODO: set properties
+                            SiteEntity entity = await session.GetAsync<SiteEntity>(model.Id).ConfigureAwait(false) ?? new SiteEntity();
+                            entity.ContentLastModified = model.ContentLastModified;
+                            //entity.Created = model.Created;
+                            //entity.LastModified = model.LastModified;
+                            entity.Culture = model.Culture ?? string.Empty;
+                            entity.Description = model.Description;
+                            entity.Hostnames = model.Hostnames ?? string.Empty;
+                            entity.InternalId = model.InternalId;
+                            entity.IsDefault = model.IsDefault;
+                            entity.LogoId = model.Logo?.Id;
+                            entity.SiteTypeId = model.SiteTypeId ?? string.Empty;
+                            entity.Title = model.Title;
+                            // TODO: deal with fields
+                            // entity.Fields = ???
+
                             await session.SaveOrUpdateAsync(entity).ConfigureAwait(false);
                             await txn.CommitAsync().ConfigureAwait(false);
                         }

@@ -18,7 +18,7 @@ namespace RimuTec.Piranha.Data.NH.Repositories
         }
 
         [Test]
-        public async Task GetAll_EmptyDatabase()
+        public async Task GetAll_ForSpecificNonExistingSite()
         {
             var siteId = Guid.NewGuid();
             var repository = new AliasRepository(SessionFactory);
@@ -27,20 +27,35 @@ namespace RimuTec.Piranha.Data.NH.Repositories
         }
 
         [Test]
-        [Ignore("Not fully implemented yet.")]
-        public async Task SaveGetById_NewAlias_HappyPath()
+        public async Task SaveGetById_HappyPath()
         {
-            var siteId = Guid.NewGuid();
-            var aliasModel = new Alias {
-                SiteId = siteId,
+            Site siteModelRetrieved = await MakeSite().ConfigureAwait(false);
+
+            var aliasModel = new Alias
+            {
+                SiteId = siteModelRetrieved.Id,
                 AliasUrl = "blog.example.com",
                 RedirectUrl = "www.example.com/blog",
                 Type = RedirectType.Temporary
             };
-            var repository = new AliasRepository(SessionFactory);
-            await repository.Save(aliasModel).ConfigureAwait(false);
-            var aliases = await repository.GetAll(siteId).ConfigureAwait(false);
+            var aliasRepository = new AliasRepository(SessionFactory);
+            await aliasRepository.Save(aliasModel).ConfigureAwait(false);
+            var aliases = await aliasRepository.GetAll(siteModelRetrieved.Id).ConfigureAwait(false);
             Assert.AreEqual(1, aliases.Count());
+        }
+
+        private async Task<Site> MakeSite()
+        {
+            var siteInternalId = $"{Guid.NewGuid()}";
+            var siteRepository = new SiteRepository(SessionFactory);
+            var siteModelToCreate = new Site
+            {
+                InternalId = siteInternalId,
+                Description = "Site 42",
+                Title = "Title 42",
+            };
+            await siteRepository.Save(siteModelToCreate).ConfigureAwait(false);
+            return await siteRepository.GetByInternalId(siteInternalId).ConfigureAwait(false);
         }
 
         private ISessionFactory SessionFactory { get; }

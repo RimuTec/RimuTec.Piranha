@@ -17,7 +17,7 @@ namespace RimuTec.Piranha.Data.NH.DataAccess.Maps
             Map(e => e.RedirectUrl);
             Map(e => e.Type);
 
-            //References(e => e.Site);
+            References(e => e.Site);
         }
     }
 }

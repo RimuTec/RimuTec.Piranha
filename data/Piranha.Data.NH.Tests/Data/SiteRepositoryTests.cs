@@ -15,7 +15,7 @@ namespace RimuTec.Piranha.Data.NH.Repositories
         }
 
         [Test]
-        public async Task GetAll_EmptyDatabase() {
+        public async Task GetAll_ForNonExistentSite() {
             var siteId = Guid.NewGuid();
             var repository = new SiteRepository(SessionFactory);
             var sites = await repository.GetAll().ConfigureAwait(false);

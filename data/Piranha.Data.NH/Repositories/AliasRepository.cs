@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
 using NHibernate.Linq;
@@ -30,7 +31,19 @@ namespace RimuTec.Piranha.Data.NH.Repositories
             {
                 using (var txn = session.BeginTransaction())
                 {
-                    aliases.AddRange(await session.Query<Alias>().ToListAsync().ConfigureAwait(false));
+                    var entities = await session.Query<AliasEntity>()
+                                                .Where(a => a.Site.Id == siteId)
+                                                .ToListAsync()
+                                                .ConfigureAwait(false);
+                    aliases.AddRange(entities.Select(e => new Alias{
+                        Id = e.Id,
+                        AliasUrl = e.AliasUrl,
+                        Created = e.Created,
+                        LastModified = e.LastModified,
+                        RedirectUrl = e.RedirectUrl,
+                        SiteId = e.Site.Id,
+                        Type = e.Type
+                    }));
                     await txn.CommitAsync().ConfigureAwait(false);
                 }
             }
@@ -60,8 +73,8 @@ namespace RimuTec.Piranha.Data.NH.Repositories
                 {
                     using (var txn = session.BeginTransaction())
                     {
-                        AliasEntity entity = session.Get<AliasEntity>(model.Id) ?? new AliasEntity();
-                        entity.Site = session.Get<SiteEntity>(model.SiteId);
+                        AliasEntity entity = await session.GetAsync<AliasEntity>(model.Id).ConfigureAwait(false) ?? new AliasEntity();
+                        entity.Site = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false);
                         entity.AliasUrl = model.AliasUrl;
                         entity.RedirectUrl = model.AliasUrl;
                         entity.Type = model.Type;
