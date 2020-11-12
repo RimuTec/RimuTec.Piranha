@@ -38,4 +38,3 @@ jobs:
             azureSubscription: RimutecRM
             scriptType: pscore
             scriptPath: pipeline/after-build.ps1
-

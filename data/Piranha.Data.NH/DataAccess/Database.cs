@@ -7,7 +7,7 @@ using NHibernate;
 
 namespace RimuTec.Piranha.Data.NH.DataAccess
 {
-        public class Database
+    public class Database
     {
         public static void RunMigrations()
         {
