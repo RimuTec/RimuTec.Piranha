@@ -23,7 +23,7 @@ namespace RimuTec.Piranha.Data.NH.DataAccess.Maps
             Map(e => e.SiteTypeId);
             Map(e => e.Title);
 
-            HasMany(e => e.Fields);
+            //HasMany(e => e.Fields);
         }
     }
 }

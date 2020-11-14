@@ -17,9 +17,12 @@ namespace RimuTec.Piranha.Data.NH.Repositories
         {
         }
 
-        public Task Delete(Guid id)
+        public async Task Delete(Guid id)
         {
-            throw new NotImplementedException();
+            await InTx(async session => {
+                var entity = await session.GetAsync<SiteEntity>(id).ConfigureAwait(false);
+                await session.DeleteAsync(entity).ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<Site>> GetAll()
@@ -121,6 +124,7 @@ namespace RimuTec.Piranha.Data.NH.Repositories
                 // entity.Fields = ???
 
                 await session.SaveOrUpdateAsync(entity).ConfigureAwait(false);
+                model.Id = entity.Id;
             }).ConfigureAwait(false);
         }
 
