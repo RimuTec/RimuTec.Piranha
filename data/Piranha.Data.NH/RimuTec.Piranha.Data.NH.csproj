@@ -1,9 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-
-        <Version>0.9.7616.1624</Version>
-
+        
         <Company>RimuTec Ltd</Company>
         <Authors>RimuTec Ltd</Authors>
         <Description>Data components for Fluent NHibernate</Description>

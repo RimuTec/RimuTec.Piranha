@@ -23,7 +23,7 @@ namespace RimuTec.Piranha.Data.NH.Tests
         [Test]
         public void Version()
         {
-            var jan2020 = new DateTime(2000,01,01);
+            var jan2020 = new DateTime(2020,01,01);
             var daysSinceThen = Math.Round(DateTime.Now.Subtract(jan2020).TotalDays);
             var module = new Module();
             Assert.AreEqual($"0.9.{daysSinceThen}", module.Version);

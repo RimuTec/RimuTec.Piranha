@@ -11,7 +11,7 @@ services:
         depends_on:
             - database
         command: >
-            bash -c "pwsh /app/dev/init.ps1 && sleep infinity"
+            bash -c "pwsh /app/dev/init.ps1 && pwsh /app/dev/setversion.ps1 && sleep infinity"
 
     database:
         container_name: rimutec-piranha-dev-db
