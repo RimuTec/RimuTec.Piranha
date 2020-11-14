@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{8B6B274C-E8B1-4659-B287-AB706E961169}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8B6B274C-E8B1-4659-B287-AB706E961169}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RimuTec.Piranha.Data.NH", "src\Piranha.Data.NH\RimuTec.Piranha.Data.NH.csproj", "{1050B9C1-5A2D-4304-908B-DDD944CF4152}"
 EndProject
