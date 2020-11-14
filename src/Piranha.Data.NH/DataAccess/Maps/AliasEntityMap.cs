@@ -8,7 +8,7 @@ namespace RimuTec.Piranha.Data.NH.DataAccess.Maps
         public AliasEntityMap()
         {
             Table("Alias");
-            
+
             Id(e => e.Id);
             Map(e => e.Created);
             Map(e => e.LastModified);
