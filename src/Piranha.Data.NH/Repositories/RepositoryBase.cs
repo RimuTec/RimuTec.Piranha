@@ -15,21 +15,20 @@ namespace RimuTec.Piranha.Data.NH.Repositories
         protected async Task<T> InTx<T>(Func<ISession, Task<T>> function)
         {
             using (var session = SessionFactory.OpenSession())
+            using (var txn = session.BeginTransaction())
             {
-                using (var txn = session.BeginTransaction())
+                T result;
+                try
                 {
-                    T result;
-                    try
-                    {
-                        result = await function.Invoke(session).ConfigureAwait(false);
-                        await txn.CommitAsync().ConfigureAwait(false);
-                        return result;
-                    }
-                    catch (Exception ex)
-                    {
-                        txn.Rollback();
-                        throw;
-                    }
+                    result = await function.Invoke(session).ConfigureAwait(false);
+                    await txn.CommitAsync().ConfigureAwait(false);
+                    return result;
+                }
+                catch (Exception)
+                {
+                    // TODO: exception handling including retry logic
+                    await txn.RollbackAsync().ConfigureAwait(false);
+                    throw;
                 }
             }
         }
