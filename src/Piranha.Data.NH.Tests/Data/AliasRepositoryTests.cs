@@ -5,7 +5,6 @@ using NHibernate;
 using NUnit.Framework;
 using Piranha.Models;
 using RimuTec.Piranha.Data.NH.DataAccess;
-using RimuTec.Piranha.Data.NH.Repositories;
 
 namespace RimuTec.Piranha.Data.NH.Repositories
 {
