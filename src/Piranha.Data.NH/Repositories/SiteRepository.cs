@@ -54,20 +54,23 @@ namespace RimuTec.Piranha.Data.NH.Repositories
         {
             return await InTx(async session => {
                 var entity = await session.GetAsync<SiteEntity>(id).ConfigureAwait(false);
-                return new Site {
-                    Id = entity.Id,
-                    SiteTypeId = entity.SiteTypeId,
-                    Title = entity.Title,
-                    InternalId = entity.InternalId,
-                    Description = entity.Description,
-                    Logo = entity.LogoId ?? new ImageField(),
-                    Hostnames = entity.Hostnames,
-                    IsDefault = entity.IsDefault,
-                    Culture = entity.Culture,
-                    ContentLastModified = entity.ContentLastModified,
-                    Created = entity.Created,
-                    LastModified = entity.LastModified
-                };
+                if(entity != null) {
+                    return new Site {
+                        Id = entity.Id,
+                        SiteTypeId = entity.SiteTypeId,
+                        Title = entity.Title,
+                        InternalId = entity.InternalId,
+                        Description = entity.Description,
+                        Logo = entity.LogoId ?? new ImageField(),
+                        Hostnames = entity.Hostnames,
+                        IsDefault = entity.IsDefault,
+                        Culture = entity.Culture,
+                        ContentLastModified = entity.ContentLastModified,
+                        Created = entity.Created,
+                        LastModified = entity.LastModified
+                    };
+                }
+                return null;
             }).ConfigureAwait(false);
         }
 
