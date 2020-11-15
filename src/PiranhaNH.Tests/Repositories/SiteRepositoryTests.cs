@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
@@ -13,6 +14,12 @@ namespace RimuTec.PiranhaNH.Repositories
         public SiteRepositoryTests()
         {
             SessionFactory = Database.CreateSessionFactory();
+        }
+
+        [SetUp]
+        public async Task SetUp()
+        {
+            await DeleteAllSites().ConfigureAwait(false);
         }
 
         [Test]
@@ -117,13 +124,43 @@ namespace RimuTec.PiranhaNH.Repositories
             var site = new Site {
                 Description = $"Site description {internalId}",
                 InternalId = internalId,
-                Title = $"Title {internalId}"
+                Title = $"Title {internalId}",
+                IsDefault = false
             };
             var repository = new SiteRepository(SessionFactory);
             await repository.Save(site).ConfigureAwait(false);
             var siteId = site.Id;
             var defaultSite = await repository.GetDefault().ConfigureAwait(false);
             Assert.IsNull(defaultSite);
+        }
+
+        [Test]
+        public async Task GetDefault_WithExistingDefault()
+        {
+            var internalId = Guid.NewGuid().ToString("N");
+            var site = new Site {
+                Description = $"Site description {internalId}",
+                InternalId = internalId,
+                Title = $"Title {internalId}",
+                IsDefault = true
+            };
+            var repository = new SiteRepository(SessionFactory);
+            await repository.Save(site).ConfigureAwait(false);
+            var siteId = site.Id;
+            var defaultSite = await repository.GetDefault().ConfigureAwait(false);
+            Assert.AreEqual(siteId, defaultSite.Id);
+            Assert.IsTrue(defaultSite.IsDefault);
+        }
+
+        private async Task DeleteAllSites()
+        {
+            var repository = new SiteRepository(SessionFactory);
+            var sites = await repository.GetAll().ConfigureAwait(false);
+            var listOfTasks = new List<Task>();
+            foreach(var site in sites) {
+                listOfTasks.Add(repository.Delete(site.Id));
+            }
+            await Task.WhenAll(listOfTasks).ConfigureAwait(false);
         }
 
         private ISessionFactory SessionFactory { get; }

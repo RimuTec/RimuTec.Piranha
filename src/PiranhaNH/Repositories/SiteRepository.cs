@@ -117,12 +117,29 @@ namespace RimuTec.PiranhaNH.Repositories
 
         public async Task<Site> GetDefault()
         {
-            return await InTx(async session => {
+            return await InTx(async session =>
+            {
                 Site siteModel = null;
                 var entities = await session.Query<SiteEntity>().ToListAsync().ConfigureAwait(false);
-                var siteEntity = entities.Where(s => s.IsDefault);
-                if(siteEntity != null)
-                {}
+                var siteEntity = entities.Find(s => s.IsDefault);
+                if (siteEntity != null)
+                {
+                    siteModel = new Site
+                    {
+                        Id = siteEntity.Id,
+                        ContentLastModified = siteEntity.ContentLastModified,
+                        Created = siteEntity.Created,
+                        Culture = siteEntity.Culture,
+                        Description = siteEntity.Description,
+                        Hostnames = siteEntity.Hostnames,
+                        InternalId = siteEntity.InternalId,
+                        IsDefault = siteEntity.IsDefault,
+                        LastModified = siteEntity.LastModified,
+                        Logo = siteEntity.LogoId,
+                        SiteTypeId = siteEntity.SiteTypeId,
+                        Title = siteEntity.Title
+                    };
+                }
                 return siteModel;
             }).ConfigureAwait(false);
         }
