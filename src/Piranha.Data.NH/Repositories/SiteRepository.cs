@@ -50,9 +50,25 @@ namespace RimuTec.Piranha.Data.NH.Repositories
             }).ConfigureAwait(false);
         }
 
-        public Task<Site> GetById(Guid id)
+        public async Task<Site> GetById(Guid id)
         {
-            throw new NotImplementedException();
+            return await InTx(async session => {
+                var entity = await session.GetAsync<SiteEntity>(id).ConfigureAwait(false);
+                return new Site {
+                    Id = entity.Id,
+                    SiteTypeId = entity.SiteTypeId,
+                    Title = entity.Title,
+                    InternalId = entity.InternalId,
+                    Description = entity.Description,
+                    Logo = entity.LogoId ?? new ImageField(),
+                    Hostnames = entity.Hostnames,
+                    IsDefault = entity.IsDefault,
+                    Culture = entity.Culture,
+                    ContentLastModified = entity.ContentLastModified,
+                    Created = entity.Created,
+                    LastModified = entity.LastModified
+                };
+            }).ConfigureAwait(false);
         }
 
         public async Task<Site> GetByInternalId(string internalId)

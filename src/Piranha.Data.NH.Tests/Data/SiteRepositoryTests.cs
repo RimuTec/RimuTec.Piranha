@@ -56,6 +56,23 @@ namespace RimuTec.Piranha.Data.NH.Repositories
             Assert.AreEqual(0, sites.Count(s => s.Id == site.Id));
         }
 
+        [Test]
+        public async Task GetById()
+        {
+            var internalId = Guid.NewGuid().ToString("N");
+            var site = new Site {
+                Description = $"Site description {internalId}",
+                InternalId = internalId,
+                Title = $"Title {internalId}"
+            };
+            var repository = new SiteRepository(SessionFactory);
+            await repository.Save(site).ConfigureAwait(false);
+            var siteId = site.Id;
+            Assert.AreNotEqual(Guid.Empty, siteId);
+            var retrieved = await repository.GetById(siteId).ConfigureAwait(false);
+            Assert.AreEqual(internalId, retrieved.InternalId);
+        }
+
         private ISessionFactory SessionFactory { get; }
     }
 }
