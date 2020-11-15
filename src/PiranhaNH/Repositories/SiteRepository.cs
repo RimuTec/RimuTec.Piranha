@@ -115,9 +115,16 @@ namespace RimuTec.PiranhaNH.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Site> GetDefault()
+        public async Task<Site> GetDefault()
         {
-            throw new NotImplementedException();
+            return await InTx(async session => {
+                Site siteModel = null;
+                var entities = await session.Query<SiteEntity>().ToListAsync().ConfigureAwait(false);
+                var siteEntity = entities.Where(s => s.IsDefault);
+                if(siteEntity != null)
+                {}
+                return siteModel;
+            }).ConfigureAwait(false);
         }
 
         public Task<Sitemap> GetSitemap(Guid id, bool onlyPublished = true)

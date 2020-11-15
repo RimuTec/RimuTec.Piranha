@@ -85,7 +85,7 @@ namespace RimuTec.PiranhaNH.Repositories
         }
 
         [Test]
-        public async Task GetById()
+        public async Task GetById_ExistingSite()
         {
             var internalId = Guid.NewGuid().ToString("N");
             var site = new Site {
@@ -102,12 +102,28 @@ namespace RimuTec.PiranhaNH.Repositories
         }
 
         [Test]
-        public async Task GetById_RandomId()
+        public async Task GetById_WithRandomId()
         {
             var someId = Guid.NewGuid();
             var repository = new SiteRepository(SessionFactory);
             var retrieved = await repository.GetById(someId).ConfigureAwait(false);
             Assert.Null(retrieved);
+        }
+
+        [Test]
+        public async Task GetDefault_NoDefault()
+        {
+            var internalId = Guid.NewGuid().ToString("N");
+            var site = new Site {
+                Description = $"Site description {internalId}",
+                InternalId = internalId,
+                Title = $"Title {internalId}"
+            };
+            var repository = new SiteRepository(SessionFactory);
+            await repository.Save(site).ConfigureAwait(false);
+            var siteId = site.Id;
+            var defaultSite = await repository.GetDefault().ConfigureAwait(false);
+            Assert.IsNull(defaultSite);
         }
 
         private ISessionFactory SessionFactory { get; }
