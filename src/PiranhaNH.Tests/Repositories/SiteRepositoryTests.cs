@@ -24,7 +24,7 @@ namespace RimuTec.PiranhaNH.Repositories
         }
 
         [Test]
-        public async Task Save()
+        public async Task Save_NewSite()
         {
             var internalId = Guid.NewGuid().ToString("N");
             var site = new Site {
@@ -38,6 +38,26 @@ namespace RimuTec.PiranhaNH.Repositories
             Assert.AreEqual(1, sites.Count(s => s.InternalId == internalId));
             Assert.AreNotEqual(Guid.Empty, site.Id);
             Assert.AreNotEqual(site.Id, sites.First(s => s.InternalId == internalId));
+        }
+
+        [Test]
+        public async Task Save_ExistingSite()
+        {
+            var internalId = Guid.NewGuid().ToString("N");
+            var site = new Site {
+                Description = $"Site description {internalId}",
+                InternalId = internalId,
+                Title = $"Title {internalId}"
+            };
+            var repository = new SiteRepository(SessionFactory);
+            await repository.Save(site).ConfigureAwait(false);
+            var siteId = site.Id;
+            var modifiedDescription = site.Description + " modified";
+            site.Description = modifiedDescription;
+            await repository.Save(site).ConfigureAwait(false);
+            var retrieved = await repository.GetById(site.Id).ConfigureAwait(false);
+            Assert.AreEqual(siteId, retrieved.Id);
+            Assert.AreEqual(modifiedDescription, retrieved.Description);
         }
 
         [Test]
