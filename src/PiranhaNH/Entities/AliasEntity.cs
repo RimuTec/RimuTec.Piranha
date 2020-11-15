@@ -1,6 +1,6 @@
 using Piranha.Models;
 
-namespace RimuTec.Piranha.Data.NH.Entities
+namespace RimuTec.PiranhaNH.Entities
 {
     internal class AliasEntity : EntityBase
     {

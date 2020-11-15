@@ -3,11 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
 using NUnit.Framework;
-using RimuTec.PiranhaNH.Repositories;
 using Piranha.Models;
-using RimuTec.Piranha.Data.NH.DataAccess;
+using RimuTec.PiranhaNH.DataAccess;
 
-namespace RimuTec.Piranha.Data.NH.Repositories
+namespace RimuTec.PiranhaNH.Repositories
 {
     [TestFixture]
     public class AliasRepositoryTests

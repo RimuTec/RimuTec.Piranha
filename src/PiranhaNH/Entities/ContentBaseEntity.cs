@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace RimuTec.Piranha.Data.NH.Entities
+namespace RimuTec.PiranhaNH.Entities
 {
     internal abstract class ContentBaseEntity<T> : EntityBase where T : ContentFieldBase
     {

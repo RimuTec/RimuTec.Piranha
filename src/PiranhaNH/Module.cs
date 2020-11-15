@@ -1,7 +1,7 @@
 using Piranha;
 using Piranha.Extend;
 
-namespace RimuTec.Piranha.Data.NH
+namespace RimuTec.PiranhaNH
 {
     public class Module : IModule
     {

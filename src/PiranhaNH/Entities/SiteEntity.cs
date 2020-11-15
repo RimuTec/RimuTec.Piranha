@@ -1,6 +1,6 @@
 using System;
 
-namespace RimuTec.Piranha.Data.NH.Entities
+namespace RimuTec.PiranhaNH.Entities
 {
     internal class SiteEntity : ContentBaseEntity<SiteFieldEntity>
     {

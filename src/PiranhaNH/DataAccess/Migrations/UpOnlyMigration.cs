@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using FluentMigrator;
 
-namespace RimuTec.Piranha.Data.NH.DataAccess.Migrations
+namespace RimuTec.PiranhaNH.DataAccess.Migrations
 {
     public abstract class UpOnlyMigration : Migration
     {

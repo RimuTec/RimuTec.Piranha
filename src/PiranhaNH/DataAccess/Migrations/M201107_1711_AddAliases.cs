@@ -1,6 +1,6 @@
 using FluentMigrator;
 
-namespace RimuTec.Piranha.Data.NH.DataAccess.Migrations
+namespace RimuTec.PiranhaNH.DataAccess.Migrations
 {
     [Migration(201107_1711)]
     public class M201107_1711_AddAliases : UpOnlyMigration

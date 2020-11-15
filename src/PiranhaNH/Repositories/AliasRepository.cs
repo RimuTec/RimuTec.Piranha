@@ -6,7 +6,7 @@ using NHibernate;
 using NHibernate.Linq;
 using Piranha.Models;
 using Piranha.Repositories;
-using RimuTec.Piranha.Data.NH.Entities;
+using RimuTec.PiranhaNH.Entities;
 
 namespace RimuTec.PiranhaNH.Repositories
 {

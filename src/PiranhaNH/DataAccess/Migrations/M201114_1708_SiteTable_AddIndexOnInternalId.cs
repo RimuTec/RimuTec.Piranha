@@ -1,6 +1,6 @@
 using FluentMigrator;
 
-namespace RimuTec.Piranha.Data.NH.DataAccess.Migrations
+namespace RimuTec.PiranhaNH.DataAccess.Migrations
 {
     [Migration(201114_1708)]
     public class M201114_1708_SiteTable_AddIndexOnInternalId : UpOnlyMigration

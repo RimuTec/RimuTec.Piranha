@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace RimuTec.Piranha.Data.NH.Tests
+namespace RimuTec.PiranhaNH
 {
     [TestFixture]
     public class ModuleTests

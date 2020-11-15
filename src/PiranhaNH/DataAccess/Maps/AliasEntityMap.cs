@@ -1,7 +1,7 @@
 using FluentNHibernate.Mapping;
-using RimuTec.Piranha.Data.NH.Entities;
+using RimuTec.PiranhaNH.Entities;
 
-namespace RimuTec.Piranha.Data.NH.DataAccess.Maps
+namespace RimuTec.PiranhaNH.DataAccess.Maps
 {
     internal class AliasEntityMap : ClassMap<AliasEntity>
     {
