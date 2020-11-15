@@ -129,7 +129,6 @@ namespace RimuTec.PiranhaNH.Repositories
             };
             var repository = new SiteRepository(SessionFactory);
             await repository.Save(site).ConfigureAwait(false);
-            var siteId = site.Id;
             var defaultSite = await repository.GetDefault().ConfigureAwait(false);
             Assert.IsNull(defaultSite);
         }
