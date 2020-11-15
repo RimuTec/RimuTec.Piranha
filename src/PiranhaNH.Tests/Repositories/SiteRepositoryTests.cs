@@ -57,6 +57,14 @@ namespace RimuTec.PiranhaNH.Repositories
         }
 
         [Test]
+        public async Task Delete_WithRandomId()
+        {
+            var repository = new SiteRepository(SessionFactory);
+            await repository.Delete(Guid.NewGuid()).ConfigureAwait(false);
+            // Nothing to assert. Should ignore the request without throwing exception.
+        }
+
+        [Test]
         public async Task GetById()
         {
             var internalId = Guid.NewGuid().ToString("N");

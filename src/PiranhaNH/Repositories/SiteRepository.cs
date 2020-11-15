@@ -21,7 +21,9 @@ namespace RimuTec.PiranhaNH.Repositories
         {
             await InTx(async session => {
                 var entity = await session.GetAsync<SiteEntity>(id).ConfigureAwait(false);
-                await session.DeleteAsync(entity).ConfigureAwait(false);
+                if(entity != null) {
+                    await session.DeleteAsync(entity).ConfigureAwait(false);
+                }
             }).ConfigureAwait(false);
         }
 
