@@ -9,8 +9,8 @@
         <PackageTags>cms mvc aspnetcore netstandard</PackageTags>
         <PackageLicensExpression>MIT</PackageLicensExpression>
         <RepositoryType>git</RepositoryType>
-        <AssemblyName>RimuTec.Piranha.Data.NH</AssemblyName>
-        <RootNamespace>RimuTec.Piranha.Data.NH</RootNamespace>
+        <AssemblyName>RimuTec.PiranhaNH</AssemblyName>
+        <RootNamespace>RimuTec.PiranhaNH</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Autofac.Extras.DynamicProxy" Version="6.0.0" />

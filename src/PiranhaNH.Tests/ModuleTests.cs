@@ -17,7 +17,7 @@ namespace RimuTec.Piranha.Data.NH.Tests
         public void Name()
         {
             var module = new Module();
-            Assert.AreEqual("RimuTec.Piranha.Data.NH", module.Name);
+            Assert.AreEqual("RimuTec.PiranhaNH", module.Name);
         }
 
         [Test]

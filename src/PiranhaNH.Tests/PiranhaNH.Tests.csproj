@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Piranha.Data.NH\RimuTec.Piranha.Data.NH.csproj" />
+    <ProjectReference Include="..\PiranhaNH\PiranhaNH.csproj" />
   </ItemGroup>
 
 </Project>

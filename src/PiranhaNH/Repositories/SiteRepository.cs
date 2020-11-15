@@ -9,7 +9,7 @@ using Piranha.Models;
 using Piranha.Repositories;
 using RimuTec.Piranha.Data.NH.Entities;
 
-namespace RimuTec.Piranha.Data.NH.Repositories
+namespace RimuTec.PiranhaNH.Repositories
 {
     public class SiteRepository : RepositoryBase, ISiteRepository
     {

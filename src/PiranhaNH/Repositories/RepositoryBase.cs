@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using NHibernate;
 
-namespace RimuTec.Piranha.Data.NH.Repositories
+namespace RimuTec.PiranhaNH.Repositories
 {
     public class RepositoryBase
     {

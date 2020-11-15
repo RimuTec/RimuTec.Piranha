@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
 using NUnit.Framework;
+using RimuTec.PiranhaNH.Repositories;
 using Piranha.Models;
 using RimuTec.Piranha.Data.NH.DataAccess;
 
