@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:3.1
+FROM mcr.microsoft.com/dotnet/sdk:5.0
 
 # Create non-root user
 RUN groupadd -g 1500 -r piranha && \
