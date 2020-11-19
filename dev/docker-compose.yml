@@ -7,7 +7,7 @@ services:
             context: .
         working_dir: /app
         volumes:
-            - "..:/app"
+            - ..:/app:cached
         depends_on:
             - database
         command: >

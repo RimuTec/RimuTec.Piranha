@@ -15,5 +15,6 @@
 		"ms-vscode.powershell",
 		"shd101wyy.markdown-preview-enhanced"
     ],
+    "remoteUser": "piranha",
     "shutdownAction": "stopCompose"
 }
