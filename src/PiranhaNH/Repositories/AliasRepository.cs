@@ -16,9 +16,13 @@ namespace RimuTec.PiranhaNH.Repositories
         {
         }
 
-        public Task Delete(Guid id)
+        public async Task Delete(Guid id)
         {
-            throw new NotImplementedException();
+            await InTx(async session => {
+                var toDelete = await session.GetAsync<AliasEntity>(id).ConfigureAwait(false);
+                await session.DeleteAsync(toDelete).ConfigureAwait(false);
+            })
+            .ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<Alias>> GetAll(Guid siteId)
@@ -66,9 +70,10 @@ namespace RimuTec.PiranhaNH.Repositories
                 AliasEntity entity = await session.GetAsync<AliasEntity>(model.Id).ConfigureAwait(false) ?? new AliasEntity();
                 entity.Site = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false);
                 entity.AliasUrl = model.AliasUrl;
-                entity.RedirectUrl = model.AliasUrl;
+                entity.RedirectUrl = model.RedirectUrl;
                 entity.Type = model.Type;
                 await session.SaveOrUpdateAsync(entity).ConfigureAwait(false);
+                model.Id = entity.Id;
             }).ConfigureAwait(false);
         }
     }

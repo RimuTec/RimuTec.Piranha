@@ -26,7 +26,7 @@ namespace RimuTec.PiranhaNH.Repositories
         }
 
         [Test]
-        public async Task SaveGetById_HappyPath()
+        public async Task SaveGetAll_HappyPath()
         {
             Site siteModelRetrieved = await MakeSite().ConfigureAwait(false);
 
@@ -41,6 +41,44 @@ namespace RimuTec.PiranhaNH.Repositories
             await aliasRepository.Save(aliasModel).ConfigureAwait(false);
             var aliases = await aliasRepository.GetAll(siteModelRetrieved.Id).ConfigureAwait(false);
             Assert.AreEqual(1, aliases.Count());
+        }
+
+        [Test]
+        public async Task Save_SetsId()
+        {
+            Site siteModelRetrieved = await MakeSite().ConfigureAwait(false);
+
+            var aliasModel = new Alias
+            {
+                SiteId = siteModelRetrieved.Id,
+                AliasUrl = "blog.example.com",
+                RedirectUrl = "www.example.com/blog",
+                Type = RedirectType.Temporary
+            };
+            var aliasRepository = new AliasRepository(SessionFactory);
+            await aliasRepository.Save(aliasModel).ConfigureAwait(false);
+            Assert.False(aliasModel.Id == Guid.Empty);
+        }
+
+        [Test]
+        public async Task Delete()
+        {
+            var aliasId = Guid.NewGuid().ToString("N");
+            Site siteModelRetrieved = await MakeSite().ConfigureAwait(false);
+            var aliasModel = new Alias
+            {
+                SiteId = siteModelRetrieved.Id,
+                AliasUrl = "blog.example.com",
+                RedirectUrl = $"www.example.com/blog?id={aliasId}",
+                Type = RedirectType.Temporary
+            };
+            var aliasRepository = new AliasRepository(SessionFactory);
+            await aliasRepository.Save(aliasModel).ConfigureAwait(false);
+            var aliases = await aliasRepository.GetAll(siteModelRetrieved.Id).ConfigureAwait(false);
+            var toDelete = aliases.First(x => x.RedirectUrl.Contains(aliasId));
+            await aliasRepository.Delete(toDelete.Id).ConfigureAwait(false);
+            aliases = await aliasRepository.GetAll(siteModelRetrieved.Id).ConfigureAwait(false);
+            Assert.False(aliases.Any(x => x.RedirectUrl.Contains(aliasId)));
         }
 
         private async Task<Site> MakeSite()
