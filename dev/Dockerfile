@@ -1,5 +1,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0
 
+# Install 'ps' as it is missing from the base image and omnisharp-vscode needs it:
+RUN apt-get update && \
+    apt-get install -y procps
+
 # Create non-root user
 RUN groupadd -g 1500 -r piranha && \
     useradd -u 1500 -r -g piranha -m -s $(which bash) piranha
@@ -13,6 +17,9 @@ RUN mkdir /app
 
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
+
+# COPY dev/test-explorer-patch/testDiscovery.js /home/piranha/.vscode-server/extensions/formulahendry.dotnet-test-explorer-0.7.4/out/src/testDiscovery.js
+# RUN chown -R piranha:piranha /home/piranha/.vscode-server/extensions/formulahendry.dotnet-test-explorer-0.7.4/out/src/testDiscovery.js
 
 # Install dotnet-outdated (see https://github.com/dotnet-outdated/dotnet-outdated)
 RUN runuser -l piranha -c "dotnet tool install --global dotnet-outdated-tool"
