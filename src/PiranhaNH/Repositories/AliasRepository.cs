@@ -34,15 +34,15 @@ namespace RimuTec.PiranhaNH.Repositories
                                             .Where(a => a.Site.Id == siteId)
                                             .ToListAsync()
                                             .ConfigureAwait(false);
-                aliases.AddRange(entities.Select(e => new Alias
+                aliases.AddRange(entities.Select(entity => new Alias
                 {
-                    Id = e.Id,
-                    AliasUrl = e.AliasUrl,
-                    Created = e.Created,
-                    LastModified = e.LastModified,
-                    RedirectUrl = e.RedirectUrl,
-                    SiteId = e.Site.Id,
-                    Type = e.Type
+                    Id = entity.Id,
+                    AliasUrl = entity.AliasUrl,
+                    Created = entity.Created,
+                    LastModified = entity.LastModified,
+                    RedirectUrl = entity.RedirectUrl,
+                    SiteId = entity.Site.Id,
+                    Type = entity.Type
                 }));
                 return aliases;
             }
@@ -54,9 +54,20 @@ namespace RimuTec.PiranhaNH.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Alias> GetById(Guid id)
+        public async Task<Alias> GetById(Guid id)
         {
-            throw new NotImplementedException();
+            return await InTx(async session => {
+                var entity = await session.GetAsync<AliasEntity>(id).ConfigureAwait(false);
+                return new Alias {
+                    Id = entity.Id,
+                    AliasUrl = entity.AliasUrl,
+                    Created = entity.Created,
+                    LastModified = entity.LastModified,
+                    RedirectUrl = entity.RedirectUrl,
+                    SiteId = entity.Site.Id,
+                    Type = entity.Type
+                };
+            }).ConfigureAwait(false);
         }
 
         public Task<IEnumerable<Alias>> GetByRedirectUrl(string url, Guid siteId)
