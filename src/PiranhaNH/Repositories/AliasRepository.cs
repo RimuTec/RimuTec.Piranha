@@ -18,7 +18,8 @@ namespace RimuTec.PiranhaNH.Repositories
 
         public async Task Delete(Guid id)
         {
-            await InTx(async session => {
+            await InTx(async session =>
+            {
                 var toDelete = await session.GetAsync<AliasEntity>(id).ConfigureAwait(false);
                 await session.DeleteAsync(toDelete).ConfigureAwait(false);
             })
@@ -49,16 +50,40 @@ namespace RimuTec.PiranhaNH.Repositories
             ).ConfigureAwait(false);
         }
 
-        public Task<Alias> GetByAliasUrl(string url, Guid siteId)
+        public async Task<Alias> GetByAliasUrl(string url, Guid siteId)
         {
-            throw new NotImplementedException();
+            return await InTx(async session =>
+            {
+                var entities = await session.Query<AliasEntity>()
+                                            .Where(a => a.Site.Id == siteId
+                                            && a.AliasUrl == url)
+                                            .ToListAsync()
+                                            .ConfigureAwait(false);
+                if (entities.Count > 0)
+                {
+                    var entity = entities[0];
+                    return new Alias
+                    {
+                        Id = entity.Id,
+                        AliasUrl = entity.AliasUrl,
+                        Created = entity.Created,
+                        LastModified = entity.LastModified,
+                        RedirectUrl = entity.RedirectUrl,
+                        SiteId = entity.Site.Id,
+                        Type = entity.Type
+                    };
+                }
+                return null;
+            }).ConfigureAwait(false);
         }
 
         public async Task<Alias> GetById(Guid id)
         {
-            return await InTx(async session => {
+            return await InTx(async session =>
+            {
                 var entity = await session.GetAsync<AliasEntity>(id).ConfigureAwait(false);
-                return new Alias {
+                return new Alias
+                {
                     Id = entity.Id,
                     AliasUrl = entity.AliasUrl,
                     Created = entity.Created,
@@ -77,7 +102,8 @@ namespace RimuTec.PiranhaNH.Repositories
 
         public async Task Save(Alias model)
         {
-            await InTx(async session => {
+            await InTx(async session =>
+            {
                 AliasEntity entity = await session.GetAsync<AliasEntity>(model.Id).ConfigureAwait(false) ?? new AliasEntity();
                 entity.Site = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false);
                 entity.AliasUrl = model.AliasUrl;
