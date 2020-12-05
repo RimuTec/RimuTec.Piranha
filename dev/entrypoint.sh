@@ -1,5 +1,7 @@
 #!/bin/sh
 
+chmod +x /app/dev/setversion.ps1
+
 # Change ownership of all directories and files in the mounted volume, i.e.
 # what has been mapped from the host:
 chown -R piranha:piranha /app
