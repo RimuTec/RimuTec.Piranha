@@ -123,6 +123,30 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(aliasUrl, retrievedAlias.AliasUrl);
       }
 
+      [Test]
+      public async Task GetByRedirectUrl()
+      {
+         var aliasId = Guid.NewGuid().ToString("N");
+         Site siteModelRetrieved = await MakeSite().ConfigureAwait(false);
+         string redirectUrl = $"www.example.com/blog?id={aliasId}";
+         string aliasUrl = $"blog.example.com?q={aliasId}";
+         var aliasModel = new Alias
+         {
+            SiteId = siteModelRetrieved.Id,
+            AliasUrl = aliasUrl,
+            RedirectUrl = redirectUrl,
+            Type = RedirectType.Temporary
+         };
+         var aliasRepository = new AliasRepository(SessionFactory);
+         await aliasRepository.Save(aliasModel).ConfigureAwait(false);
+         var retrievedAliases = await aliasRepository.GetByRedirectUrl(redirectUrl, siteModelRetrieved.Id).ConfigureAwait(false);
+
+         Assert.AreEqual(1, retrievedAliases.Count());
+         Assert.AreEqual(aliasModel.Id, retrievedAliases.First().Id);
+         Assert.AreEqual(redirectUrl, retrievedAliases.First().RedirectUrl);
+         Assert.AreEqual(aliasUrl, retrievedAliases.First().AliasUrl);
+      }
+
       private async Task<Site> MakeSite()
       {
          var siteInternalId = $"{Guid.NewGuid()}";

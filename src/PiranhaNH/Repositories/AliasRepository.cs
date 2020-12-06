@@ -95,9 +95,27 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task<IEnumerable<Alias>> GetByRedirectUrl(string url, Guid siteId)
+      public async Task<IEnumerable<Alias>> GetByRedirectUrl(string url, Guid siteId)
       {
-         throw new NotImplementedException();
+         return await InTx(async session =>
+         {
+            var aliases = new List<Alias>();
+            var entities = await session.Query<AliasEntity>()
+            .Where(a => a.RedirectUrl == url && a.Site.Id == siteId)
+            .ToListAsync()
+            .ConfigureAwait(false);
+            aliases.AddRange(entities.Select(entity => new Alias
+            {
+               Id = entity.Id,
+               AliasUrl = entity.AliasUrl,
+               Created = entity.Created,
+               LastModified = entity.LastModified,
+               RedirectUrl = entity.RedirectUrl,
+               SiteId = entity.Site.Id,
+               Type = entity.Type
+            }));
+            return aliases;
+         }).ConfigureAwait(false);
       }
 
       public async Task Save(Alias model)

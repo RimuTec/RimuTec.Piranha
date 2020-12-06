@@ -1,6 +1,7 @@
 #!/bin/sh
 
 chmod +x /app/dev/setversion.ps1
+chmod +x /app/dev/patch-test-explorer.sh
 
 # Change ownership of all directories and files in the mounted volume, i.e.
 # what has been mapped from the host:
