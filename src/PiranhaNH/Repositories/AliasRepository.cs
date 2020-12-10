@@ -32,9 +32,9 @@ namespace RimuTec.PiranhaNH.Repositories
          {
             var aliases = new List<Alias>();
             var entities = await session.Query<AliasEntity>()
-                                           .Where(a => a.Site.Id == siteId)
-                                           .ToListAsync()
-                                           .ConfigureAwait(false);
+                                          .Where(a => a.Site.Id == siteId)
+                                          .ToListAsync()
+                                          .ConfigureAwait(false);
             aliases.AddRange(entities.Select(entity => new Alias
             {
                Id = entity.Id,
@@ -55,10 +55,10 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async session =>
          {
             var entities = await session.Query<AliasEntity>()
-                                           .Where(a => a.Site.Id == siteId
-                                           && a.AliasUrl == url)
-                                           .ToListAsync()
-                                           .ConfigureAwait(false);
+                                          .Where(a => a.Site.Id == siteId
+                                          && a.AliasUrl == url)
+                                          .ToListAsync()
+                                          .ConfigureAwait(false);
             if (entities.Count > 0)
             {
                var entity = entities[0];
