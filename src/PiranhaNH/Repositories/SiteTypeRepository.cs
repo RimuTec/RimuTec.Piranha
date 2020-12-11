@@ -19,27 +19,26 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task Delete(string id)
       {
-         throw new System.NotImplementedException();
+         await InTx(async session =>
+         {
+            var entity = await session.GetAsync<SiteTypeEntity>(id).ConfigureAwait(false);
+            if(entity != null)
+            {
+               await session.DeleteAsync(entity).ConfigureAwait(false);
+            }
+         }).ConfigureAwait(false);
       }
 
       public async Task<IEnumerable<SiteType>> GetAll()
       {
          return await InTx(async session =>
          {
-            // var models = new List<SiteType>();
-            // var types = await session.Query<SiteTypeEntity>().OrderBy(e => e.Id).ToListAsync().ConfigureAwait(false);
-
-            //var foo = await session.Query<SiteTypeEntity>().OrderBy(e => e.Id).
-
             return await (from entity
                       in session.Query<SiteTypeEntity>().OrderBy(e => e.Id)
                       select JsonConvert.DeserializeObject<SiteType>(entity.Body))
                       .ToListAsync()
                       .ConfigureAwait(false)
                       ;
-
-            // models.AddRange(types.Select(type => JsonConvert.DeserializeObject<SiteType>(type.Body)));
-            // return models;
          }).ConfigureAwait(false);
       }
 

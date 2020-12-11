@@ -41,7 +41,7 @@ namespace RimuTec.PiranhaNH.Repositories
       }
 
       [Test]
-      public async Task GetById_ReturnsNullIfTypeDoesNotExist()
+      public async Task GetById_IfTypeDoesNotExist()
       {
          var repository = new SiteTypeRepository(SessionFactory);
          var siteTypeId = $"MyFirstType{Guid.NewGuid():n}";
@@ -49,10 +49,33 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.IsNull(retrieved);
       }
 
-      private static SiteType MakeSiteType(string siteTypeId) {
-         return new SiteType {
-                Id = siteTypeId,
-                Regions = new List<RegionType>
+      [Test]
+      public async Task Delete()
+      {
+         var repository = new SiteTypeRepository(SessionFactory);
+         var siteTypeId = $"MyFirstType{Guid.NewGuid():n}";
+         var siteTypeModel = MakeSiteType(siteTypeId);
+         await repository.Save(siteTypeModel).ConfigureAwait(false);
+         var retrieved = await repository.GetById(siteTypeId).ConfigureAwait(false);
+         await repository.Delete(retrieved.Id).ConfigureAwait(false);
+         var retrievedAgain = await repository.GetById(siteTypeId).ConfigureAwait(false);
+         Assert.IsNull(retrievedAgain);
+      }
+
+      [Test]
+      public async Task Delete_IfTypeDoesNotExist()
+      {
+         var repository = new SiteTypeRepository(SessionFactory);
+         var siteTypeId = $"MyFirstType{Guid.NewGuid():n}";
+         await repository.Delete(siteTypeId).ConfigureAwait(false);
+      }
+
+      private static SiteType MakeSiteType(string siteTypeId)
+      {
+         return new SiteType
+         {
+            Id = siteTypeId,
+            Regions = new List<RegionType>
                 {
                     new RegionType
                     {
@@ -66,7 +89,7 @@ namespace RimuTec.PiranhaNH.Repositories
                         }
                     }
                 }
-            };
+         };
       }
 
       private ISessionFactory SessionFactory { get; }
