@@ -45,25 +45,33 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task<SiteType> GetById(string siteTypeId)
       {
-         throw new System.NotImplementedException();
+         return await InTx(async session =>
+         {
+            var type = await session.GetAsync<SiteTypeEntity>(siteTypeId).ConfigureAwait(false);
+            if(type != null) {
+               return JsonConvert.DeserializeObject<SiteType>(type.Body);
+            }
+            return null;
+         }).ConfigureAwait(false);
       }
 
       public async Task Save(SiteType model)
       {
          await InTx(async session =>
          {
+            DateTime now = DateTime.Now;
             var type = await session.GetAsync<SiteTypeEntity>(model.Id).ConfigureAwait(false);
             if(type == null)
             {
                type = new SiteTypeEntity
                {
                   Id = model.Id,
-                  Created = DateTime.Now
+                  Created = now
                };
             }
             type.CLRType = model.CLRType;
             type.Body = JsonConvert.SerializeObject(model);
-            type.LastModified = DateTime.Now;
+            type.LastModified = now;
             await session.SaveOrUpdateAsync(type).ConfigureAwait(false);
          }).ConfigureAwait(false);
       }

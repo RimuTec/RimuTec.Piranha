@@ -28,6 +28,27 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(1, siteTypes.Count(x => x.Id == siteTypeId));
       }
 
+      [Test]
+      public async Task GetById()
+      {
+         var repository = new SiteTypeRepository(SessionFactory);
+         var siteTypeId = $"MyFirstType{Guid.NewGuid():n}";
+         var siteTypeModel = MakeSiteType(siteTypeId);
+         await repository.Save(siteTypeModel).ConfigureAwait(false);
+         var retrieved = await repository.GetById(siteTypeId).ConfigureAwait(false);
+         Assert.AreEqual(siteTypeId, retrieved.Id);
+         Assert.AreEqual(siteTypeModel.CLRType, retrieved.CLRType);
+      }
+
+      [Test]
+      public async Task GetById_ReturnsNullIfTypeDoesNotExist()
+      {
+         var repository = new SiteTypeRepository(SessionFactory);
+         var siteTypeId = $"MyFirstType{Guid.NewGuid():n}";
+         var retrieved = await repository.GetById(siteTypeId).ConfigureAwait(false);
+         Assert.IsNull(retrieved);
+      }
+
       private static SiteType MakeSiteType(string siteTypeId) {
          return new SiteType {
                 Id = siteTypeId,
