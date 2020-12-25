@@ -4,16 +4,24 @@ using System.Threading.Tasks;
 using NHibernate;
 using NUnit.Framework;
 using Piranha.Models;
+using Piranha.Services;
 using RimuTec.PiranhaNH.DataAccess;
+using RimuTec.PiranhaNH.Services;
 
 namespace RimuTec.PiranhaNH.Repositories
 {
    [TestFixture]
-   public class AliasRepositoryTests
+   public class AliasRepositoryTests : FixtureBase
    {
       public AliasRepositoryTests()
       {
          SessionFactory = Database.CreateSessionFactory();
+      }
+
+      [OneTimeSetUp]
+      public void FixtureSetUp()
+      {
+         _contentFactory = new ContentFactory(_services);
       }
 
       [Test]
@@ -150,7 +158,7 @@ namespace RimuTec.PiranhaNH.Repositories
       private async Task<Site> MakeSite()
       {
          var siteInternalId = $"{Guid.NewGuid()}";
-         var siteRepository = new SiteRepository(SessionFactory);
+         var siteRepository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var siteModelToCreate = new Site
          {
             InternalId = siteInternalId,

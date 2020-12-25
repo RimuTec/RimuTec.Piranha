@@ -2,7 +2,7 @@ using System;
 
 namespace RimuTec.PiranhaNH.Entities
 {
-    internal abstract class ContentFieldBase
+    internal abstract class ContentFieldBaseEntity
     {
         /// <summary>
         /// Gets/sets the unique id.

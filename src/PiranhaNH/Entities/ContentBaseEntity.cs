@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace RimuTec.PiranhaNH.Entities
 {
-    internal abstract class ContentBaseEntity<T> : EntityBase where T : ContentFieldBase
+    internal abstract class ContentBaseEntity<T> : EntityBase where T : ContentFieldBaseEntity
     {
         /// <summary>
         /// Gets/sets the main title.

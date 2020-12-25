@@ -1,6 +1,6 @@
 namespace RimuTec.PiranhaNH.Entities
 {
-    internal class SiteFieldEntity : ContentFieldBase
+    internal class SiteFieldEntity : ContentFieldBaseEntity
     {
         /// <summary>
         /// Gets/sets the site.
