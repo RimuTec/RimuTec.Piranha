@@ -226,15 +226,6 @@ namespace RimuTec.PiranhaNH.Repositories
                content.TypeId = site.SiteTypeId;
                content.Title = site.Title;
 
-               // // Make sure foreign key is set for fields
-               // foreach (var field in site.Fields)
-               // {
-               //    if (field.Site == null)
-               //    {
-               //       field.Site = site;
-               //    }
-               // }
-
                _contentService.Transform(content, type, site);
 
                // Make sure foreign key is set for fields
