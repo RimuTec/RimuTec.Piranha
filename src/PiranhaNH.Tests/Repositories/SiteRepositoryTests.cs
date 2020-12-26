@@ -197,6 +197,26 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(content.Footer, retrieved.Footer);
       }
 
+      [Test]
+      public async Task SaveContent_CanHandleContentNull()
+      {
+         var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var internalId = Guid.NewGuid().ToString("N");
+         var site = new Site
+         {
+            Description = $"Site description {internalId}",
+            InternalId = internalId,
+            Title = $"Title {internalId}",
+            IsDefault = true,
+            SiteTypeId = "MySiteContent"
+         };
+         await repository.Save(site).ConfigureAwait(false);
+         var siteId = site.Id;
+         var ex = Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.SaveContent<MySiteContent>(siteId, null).ConfigureAwait(false));
+         Assert.AreEqual($"Parameter 'content' cannot be null. [Location 201226-2334] (Parameter 'content')", ex.Message);
+      }
+
+
       [PageType(Title = "PageType")]
       public class MyPage : Page<MyPage>
       {

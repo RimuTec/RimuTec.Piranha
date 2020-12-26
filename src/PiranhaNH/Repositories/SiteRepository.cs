@@ -206,6 +206,10 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task SaveContent<T>(Guid siteId, T content) where T : SiteContent<T>
       {
+         if(content == null)
+         {
+            throw new ArgumentNullException(nameof(content), "Parameter 'content' cannot be null. [Location 201226-2334]");
+         }
          await InTx(async session =>
          {
             SiteEntity site = await session.GetAsync<SiteEntity>(siteId).ConfigureAwait(false);
