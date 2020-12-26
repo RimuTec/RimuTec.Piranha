@@ -228,7 +228,6 @@ namespace RimuTec.PiranhaNH.Repositories
 
       private void Initialize()
       {
-         var modules = Piranha.App.Modules;
          using var api = CreateApi();
          Piranha.App.Init(api);
 

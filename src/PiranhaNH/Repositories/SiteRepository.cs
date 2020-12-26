@@ -242,22 +242,6 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public async Task Foo(Guid siteId)
-      {
-         await InTx(async session =>
-         {
-            SiteEntity site = await session.GetAsync<SiteEntity>(siteId).ConfigureAwait(false);
-            var siteField = new SiteFieldEntity{
-               RegionId = string.Empty,
-               FieldId = string.Empty,
-               Site = site,
-               CLRType = string.Empty
-            };
-            site.Fields.Add(siteField);
-            await session.SaveAsync(siteField).ConfigureAwait(false);
-            await session.UpdateAsync(site).ConfigureAwait(false);
-         }).ConfigureAwait(false);
-      }
       private readonly IContentService<SiteEntity, SiteFieldEntity, SiteContentBase> _contentService;
    }
 }
