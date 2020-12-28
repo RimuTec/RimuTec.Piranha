@@ -61,10 +61,11 @@ namespace RimuTec.PiranhaNH.Repositories
       {
          return await InTx(async session =>
          {
+            Site siteModel = null;
             var entity = await session.GetAsync<SiteEntity>(id).ConfigureAwait(false);
             if (entity != null)
             {
-               return new Site
+               siteModel = new Site
                {
                   Id = entity.Id,
                   SiteTypeId = entity.SiteTypeId,
@@ -80,7 +81,7 @@ namespace RimuTec.PiranhaNH.Repositories
                   LastModified = entity.LastModified
                };
             }
-            return null;
+            return siteModel;
          }).ConfigureAwait(false);
       }
 
