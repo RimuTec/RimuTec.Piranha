@@ -16,11 +16,11 @@ namespace RimuTec.PiranhaNH.Entities
       /// </summary>
       public Guid SiteId { get; set; }
 
-      /// <summary>
-      /// Gets/sets the optional parent id. Used to
-      /// position the page in the sitemap.
-      /// </summary>
-      public Guid? ParentId { get; set; }
+      // /// <summary>
+      // /// Gets/sets the optional parent id. Used to
+      // /// position the page in the sitemap.
+      // /// </summary>
+      // public Guid? ParentId { get; set; }
 
       /// <summary>
       /// Gets/sets the type of content this page

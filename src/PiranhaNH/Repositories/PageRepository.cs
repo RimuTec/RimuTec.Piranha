@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using NHibernate.Linq;
 using Piranha.Models;
 using Piranha.Repositories;
+using RimuTec.PiranhaNH.Entities;
 
 namespace RimuTec.PiranhaNH.Repositories
 {
    internal class PageRepository : RepositoryBase, IPageRepository
    {
-      protected PageRepository(NHibernate.ISessionFactory sessionFactory) : base(sessionFactory)
+      public PageRepository(NHibernate.ISessionFactory sessionFactory) : base(sessionFactory)
       {
       }
 
@@ -32,9 +35,17 @@ namespace RimuTec.PiranhaNH.Repositories
          throw new NotImplementedException();
       }
 
-      public Task<IEnumerable<Guid>> GetAll(Guid siteId)
+      public async Task<IEnumerable<Guid>> GetAll(Guid siteId)
       {
-         throw new NotImplementedException();
+         return await InTx(async session => {
+            var pageEntities = await session.Query<PageEntity>()
+               .Where(p => p.SiteId == siteId)
+               .OrderBy(p => p.Parent.Id)
+               .ThenBy(p => p.SortOrder)
+               .ToListAsync()
+               .ConfigureAwait(false);
+            return pageEntities.Select(p => p.Id);
+         }).ConfigureAwait(false);
       }
 
       public Task<IEnumerable<Guid>> GetAllBlogs(Guid siteId)
