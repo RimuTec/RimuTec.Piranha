@@ -37,6 +37,15 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(0, pageIds.Count());
       }
 
+      [Test]
+      public async Task GetAll_NonExistingSite()
+      {
+         var someRandomId = Guid.NewGuid();
+         var pageRepository = new PageRepository(SessionFactory);
+         var pageIds = await pageRepository.GetAll(someRandomId).ConfigureAwait(false);
+         Assert.AreEqual(0, pageIds.Count());
+      }
+
       private async Task<Guid> MakeSite()
       {
          var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
