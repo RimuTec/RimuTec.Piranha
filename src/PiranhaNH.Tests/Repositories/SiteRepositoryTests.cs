@@ -217,6 +217,25 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual($"Parameter 'content' cannot be null. [Location 201226-2334] (Parameter 'content')", ex.Message);
       }
 
+      // Need PageRepository for the following test to work
+      // [Test]
+      // public async Task GetSitemap()
+      // {
+      //    var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+      //    var internalId = Guid.NewGuid().ToString("N");
+      //    var site = new Site
+      //    {
+      //       Description = $"Site description {internalId}",
+      //       InternalId = internalId,
+      //       Title = $"Title {internalId}",
+      //       IsDefault = true,
+      //       SiteTypeId = "MySiteContent"
+      //    };
+      //    await repository.Save(site).ConfigureAwait(false);
+      //    var page = new Page {
+      //    }
+      // }
+
 
       [PageType(Title = "PageType")]
       public class MyPage : Page<MyPage>

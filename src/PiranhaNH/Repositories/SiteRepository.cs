@@ -176,6 +176,20 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public Task<Sitemap> GetSitemap(Guid id, bool onlyPublished = true)
       {
+            // var pages = await _db.Pages
+            //     .AsNoTracking()
+            //     .Include(p => p.Permissions)
+            //     .Where(p => p.SiteId == id)
+            //     .OrderBy(p => p.ParentId)
+            //     .ThenBy(p => p.SortOrder)
+            //     .ToListAsync()
+            //     .ConfigureAwait(false);
+
+            // if (onlyPublished)
+            // {
+            //     pages = pages.Where(p => p.Published.HasValue && p.Published.Value <= DateTime.Now).ToList();
+            // }
+            // return Sort(pages);
          throw new NotImplementedException();
       }
 
