@@ -32,7 +32,7 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetAll_ExistingSite()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var pageIds = await pageRepository.GetAll(siteId).ConfigureAwait(false);
          Assert.AreEqual(0, pageIds.Count());
       }
@@ -41,7 +41,7 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetAll_NonExistingSite()
       {
          var someRandomId = Guid.NewGuid();
-         var pageRepository = new PageRepository(SessionFactory);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var pageIds = await pageRepository.GetAll(someRandomId).ConfigureAwait(false);
          Assert.AreEqual(0, pageIds.Count());
       }

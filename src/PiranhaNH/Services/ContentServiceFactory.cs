@@ -21,7 +21,7 @@ namespace RimuTec.PiranhaNH.Services
 
       public IContentService<PageEntity, PageFieldEntity, PageBase> CreatePageService()
       {
-         throw new System.NotImplementedException();
+         return new ContentService<PageEntity, PageFieldEntity, PageBase>(_factory, Module.Mapper);
       }
 
       public IContentService<PostEntity, PostFieldEntity, PostBase> CreatePostService()

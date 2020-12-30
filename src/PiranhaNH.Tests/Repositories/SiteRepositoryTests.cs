@@ -236,7 +236,6 @@ namespace RimuTec.PiranhaNH.Repositories
       //    }
       // }
 
-
       [PageType(Title = "PageType")]
       public class MyPage : Page<MyPage>
       {
