@@ -19,7 +19,7 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public Task Delete(string id)
       {
-         throw new System.NotImplementedException();
+         throw new NotImplementedException();
       }
 
       public async Task<IEnumerable<PageType>> GetAll()
@@ -28,14 +28,14 @@ namespace RimuTec.PiranhaNH.Repositories
          {
             var pageTypes = new List<PageType>();
             var entities = await session.Query<PageTypeEntity>().ToListAsync().ConfigureAwait(false);
-            pageTypes.AddRange(entities.Select(entity => JsonConvert.DeserializeObject<PageType>(entity.Body)));
+            pageTypes.AddRange(entities.Where(e => e.Body != null).Select(entity => JsonConvert.DeserializeObject<PageType>(entity.Body)));
             return pageTypes;
          }).ConfigureAwait(false);
       }
 
       public Task<PageType> GetById(string id)
       {
-         throw new System.NotImplementedException();
+         throw new NotImplementedException();
       }
 
       public async Task Save(PageType model)

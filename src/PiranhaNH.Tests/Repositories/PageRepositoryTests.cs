@@ -46,6 +46,23 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(0, pageIds.Count());
       }
 
+      [Test]
+      public async Task GetAll_WithPage()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         using var api = CreateApi();
+         var page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now;
+         await pageRepository.Save(page).ConfigureAwait(false);
+         var pageIds = await pageRepository.GetAll(siteId).ConfigureAwait(false);
+         Assert.AreEqual(1, pageIds.Count());
+      }
+
       private async Task<Guid> MakeSite()
       {
          var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
@@ -56,7 +73,8 @@ namespace RimuTec.PiranhaNH.Repositories
             InternalId = internalId,
             Title = $"Title {internalId}",
             IsDefault = true,
-            SiteTypeId = "MySiteContent"
+            SiteTypeId = "MySiteContent",
+            Hostnames = "mysite.com"
          };
          await repository.Save(site).ConfigureAwait(false);
          return site.Id;

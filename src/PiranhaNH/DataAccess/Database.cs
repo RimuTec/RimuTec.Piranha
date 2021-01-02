@@ -4,6 +4,8 @@ using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate;
+using NHibernate.Dialect;
+using NHibernate.Tool.hbm2ddl;
 
 namespace RimuTec.PiranhaNH.DataAccess
 {
@@ -53,6 +55,10 @@ namespace RimuTec.PiranhaNH.DataAccess
                 .Mappings(m => m.FluentMappings
                     .AddFromAssemblyOf<Database>()
                     .Conventions.Add(FluentNHibernate.Conventions.Helpers.ForeignKey.EndsWith("Id")))
+               //  .ExposeConfiguration(cfg => {
+               //      //cfg.SetNamingStrategy(null);
+               //      SchemaMetadataUpdater.QuoteTableAndColumns(cfg, Dialect.GetDialect());
+               //      })
                 .BuildSessionFactory();
         }
 

@@ -34,7 +34,7 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async session =>
          {
             return await (from entity
-                      in session.Query<SiteTypeEntity>().OrderBy(e => e.Id)
+                      in session.Query<SiteTypeEntity>().Where(e => e.Body != null).OrderBy(e => e.Id)
                       select JsonConvert.DeserializeObject<SiteType>(entity.Body))
                       .ToListAsync()
                       .ConfigureAwait(false)

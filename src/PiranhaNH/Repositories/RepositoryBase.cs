@@ -24,7 +24,7 @@ namespace RimuTec.PiranhaNH.Repositories
                     await txn.CommitAsync().ConfigureAwait(false);
                     return result;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     // TODO: exception handling including retry logic
                     await txn.RollbackAsync().ConfigureAwait(false);

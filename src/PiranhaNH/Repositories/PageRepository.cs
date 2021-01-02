@@ -45,7 +45,7 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async session =>
          {
             var pageEntities = await session.Query<PageEntity>()
-               .Where(p => p.SiteId == siteId)
+               .Where(p => p.Site.Id == siteId)
                .OrderBy(p => p.Parent.Id)
                .ThenBy(p => p.SortOrder)
                .ToListAsync()
@@ -168,7 +168,7 @@ namespace RimuTec.PiranhaNH.Repositories
                      throw new InvalidOperationException("Can not set copy of a copy");
                   }
 
-                  var originalPageType = originalPage?.PageTypeId;
+                  var originalPageType = originalPage?.PageType.Id;
                   if (originalPageType != model.TypeId)
                   {
                      throw new InvalidOperationException("Copy can not have a different content type");
@@ -189,7 +189,7 @@ namespace RimuTec.PiranhaNH.Repositories
                         //await _db.Pages.AddAsync(page).ConfigureAwait(false);
 
                         // Make room for the new page
-                        var dest = await session.Query<PageEntity>().Where(p => p.SiteId == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
+                        var dest = await session.Query<PageEntity>().Where(p => p.Site.Id == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
                         //var dest = await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
                         affected.AddRange(MovePages(dest, page.Id, model.SiteId, model.SortOrder, true));
                      }
@@ -199,13 +199,13 @@ namespace RimuTec.PiranhaNH.Repositories
                      // Check if the page has been moved
                      if (!isDraft && (page.Parent.Id != model.ParentId || page.SortOrder != model.SortOrder))
                      {
-                        var source = await session.Query<PageEntity>().Where(p => p.SiteId == page.SiteId && p.Parent == page.Parent && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
+                        var source = await session.Query<PageEntity>().Where(p => p.Site == page.Site && p.Parent == page.Parent && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
                         //var source = await _db.Pages.Where(p => p.SiteId == page.SiteId && p.ParentId == page.ParentId && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
-                        var dest = page.Parent.Id == model.ParentId ? source : await session.Query<PageEntity>().Where(p => p.SiteId == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
+                        var dest = page.Parent.Id == model.ParentId ? source : await session.Query<PageEntity>().Where(p => p.Site.Id == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
                         //var dest = page.Parent.Id == model.ParentId ? source : await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
 
                         // Remove the old position for the page
-                        affected.AddRange(MovePages(source, page.Id, page.SiteId, page.SortOrder + 1, false));
+                        affected.AddRange(MovePages(source, page.Id, page.Site.Id, page.SortOrder + 1, false));
                         // Add room for the new position of the page
                         affected.AddRange(MovePages(dest, page.Id, model.SiteId, model.SortOrder, true));
                      }
@@ -219,9 +219,11 @@ namespace RimuTec.PiranhaNH.Repositories
                   }
 
                   page.ContentType = type.IsArchive ? "Blog" : "Page";
-                  page.PageTypeId = model.TypeId;
+                  page.PageType = await session.GetAsync<PageTypeEntity>(model.TypeId).ConfigureAwait(false);
+                  //page.PageTypeId = model.TypeId;
                   page.OriginalPageId = model.OriginalPageId;
-                  page.SiteId = model.SiteId;
+                  page.Site = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false);
+                  //page.SiteId = model.SiteId;
                   page.Title = model.Title;
                   page.NavigationTitle = model.NavigationTitle;
                   page.Slug = model.Slug;
@@ -286,12 +288,17 @@ namespace RimuTec.PiranhaNH.Repositories
                   page = new PageEntity
                   {
                      //Id = model.Id != Guid.Empty ? model.Id : Guid.NewGuid(),
-                     Parent = await session.GetAsync<PageEntity>(model.ParentId).ConfigureAwait(false),
+                     Parent = (model.ParentId != null && model.ParentId != Guid.Empty) ? await session.GetAsync<PageEntity>(model.ParentId).ConfigureAwait(false) : null,
                      //ParentId = model.ParentId,
                      SortOrder = model.SortOrder,
-                     PageTypeId = model.TypeId,
+                     PageType = await session.GetAsync<PageTypeEntity>(model.TypeId).ConfigureAwait(false),
+                     //PageTypeId = model.TypeId,
                      Created = DateTime.Now,
-                     LastModified = DateTime.Now
+                     LastModified = DateTime.Now,
+                     // ### Begin RT changes ###
+                     Title = model.Title,
+                     Site = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false)
+                     // ### End RT changes #####
                   };
                   await session.SaveAsync(page).ConfigureAwait(false);
                   model.Id = page.Id; // Only after the new entity object has been saved to NHibernate
@@ -301,9 +308,17 @@ namespace RimuTec.PiranhaNH.Repositories
                      //await _db.Pages.AddAsync(page).ConfigureAwait(false);
 
                      // Make room for the new page
-                     var dest = await session.Query<PageEntity>().Where(p => p.SiteId == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
-                     //var dest = await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
-                     affected.AddRange(MovePages(dest, page.Id, model.SiteId, model.SortOrder, true));
+                     // var modelSite = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false);
+                     // var parentPage = model.ParentId != null ? await session.GetAsync<PageEntity>(model.ParentId).ConfigureAwait(false) : null;
+                     // if(modelSite != null && parentPage != null)
+                     // {
+                        // var foo1 = await session.Query<PageEntity>().Where(p => p.Site == modelSite).ToListAsync().ConfigureAwait(false);
+                        // var foo2 = await session.Query<PageEntity>().Where(p => p.Parent == parentPage).ToListAsync().ConfigureAwait(false);
+                        //var dest = await session.Query<PageEntity>().Where(p => p.Site == modelSite && p.Parent == parentPage).ToListAsync().ConfigureAwait(false);
+                        var dest = await session.Query<PageEntity>().Where(p => p.Site != null && p.Parent != null && p.Site.Id == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
+                        //var dest = await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
+                        affected.AddRange(MovePages(dest, page.Id, model.SiteId, model.SortOrder, true));
+                     // }
                   }
                }
                else
@@ -311,13 +326,13 @@ namespace RimuTec.PiranhaNH.Repositories
                   // Check if the page has been moved
                   if (!isDraft && (page.Parent.Id != model.ParentId || page.SortOrder != model.SortOrder))
                   {
-                     var source = await session.Query<PageEntity>().Where(p => p.SiteId == page.SiteId && p.Parent.Id == page.Parent.Id && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
+                     var source = await session.Query<PageEntity>().Where(p => p.Site == page.Site && p.Parent.Id == page.Parent.Id && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
                      //var source = await _db.Pages.Where(p => p.SiteId == page.SiteId && p.ParentId == page.Parent.Id && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
-                     var dest = page.Parent.Id == model.ParentId ? source : await session.Query<PageEntity>().Where(p => p.SiteId == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
+                     var dest = page.Parent.Id == model.ParentId ? source : await session.Query<PageEntity>().Where(p => p.Site.Id == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
                      //var dest = page.Parent.Id == model.ParentId ? source : await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
 
                      // Remove the old position for the page
-                     affected.AddRange(MovePages(source, page.Id, page.SiteId, page.SortOrder + 1, false));
+                     affected.AddRange(MovePages(source, page.Id, page.Site.Id, page.SortOrder + 1, false));
                      // Add room for the new position of the page
                      affected.AddRange(MovePages(dest, page.Id, model.SiteId, model.SortOrder, true));
                   }
@@ -354,9 +369,11 @@ namespace RimuTec.PiranhaNH.Repositories
                {
                   foreach (var field in page.Fields)
                   {
-                     if (field.PageId == Guid.Empty)
+                     if (field.Page == null)
+                     //if (field.PageId == Guid.Empty)
                      {
-                        field.PageId = page.Id;
+                        field.Page = page;
+                        //field.PageId = page.Id;
                         await session.SaveOrUpdateAsync(field).ConfigureAwait(false);
                         //await _db.PageFields.AddAsync(field).ConfigureAwait(false);
                      }

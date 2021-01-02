@@ -47,7 +47,7 @@ namespace RimuTec.PiranhaNH
                //      .ForMember(f => f.MediaCount, o => o.Ignore())
                //      .ForMember(f => f.Items, o => o.Ignore());
                cfg.CreateMap<PageEntity, PageBase>()
-                   .ForMember(p => p.TypeId, o => o.MapFrom(m => m.PageTypeId))
+                   .ForMember(p => p.TypeId, o => o.MapFrom(m => m.PageType.Id))
                    .ForMember(p => p.PrimaryImage, o => o.MapFrom(m => m.PrimaryImageId))
                    .ForMember(p => p.OgImage, o => o.MapFrom(m => m.OgImageId))
                    .ForMember(p => p.Permalink, o => o.MapFrom(m => "/" + m.Slug))
@@ -58,7 +58,8 @@ namespace RimuTec.PiranhaNH
                    .ForMember(p => p.ContentType, o => o.Ignore())
                    .ForMember(p => p.PrimaryImageId, o => o.MapFrom(m => m.PrimaryImage != null ? m.PrimaryImage.Id : null))
                    .ForMember(p => p.OgImageId, o => o.MapFrom(m => m.OgImage != null ? m.OgImage.Id : null))
-                   .ForMember(p => p.PageTypeId, o => o.MapFrom(m => m.TypeId))
+                   .ForMember(p => p.PageType, o => o.Ignore())
+                   //.ForMember(p => p.PageTypeId, o => o.MapFrom(m => m.TypeId))
                    .ForMember(p => p.Blocks, o => o.Ignore())
                    .ForMember(p => p.Fields, o => o.Ignore())
                    .ForMember(p => p.Created, o => o.Ignore())
