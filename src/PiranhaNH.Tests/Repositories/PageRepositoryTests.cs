@@ -85,6 +85,15 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual("Welcome", retrieved.Text.Value);
       }
 
+      [Test]
+      public async Task GetById_RandomIdReturnsNull()
+      {
+         var pageId = Guid.NewGuid();
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var retrieved = await pageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
+         Assert.IsNull(retrieved);
+      }
+
       private async Task<Guid> MakeSite()
       {
          var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));

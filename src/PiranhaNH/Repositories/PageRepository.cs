@@ -79,7 +79,11 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async (session) =>
          {
             var page = await session.GetAsync<PageEntity>(id).ConfigureAwait(false);
-            return await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
+            if (page != null)
+            {
+               return await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
+            }
+            return null;
          }).ConfigureAwait(false);
          //throw new NotImplementedException();
       }
