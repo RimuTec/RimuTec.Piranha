@@ -59,8 +59,10 @@ namespace RimuTec.PiranhaNH.Repositories
          page.IsHidden = true;
          page.Published = DateTime.Now;
          await pageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
          var pageIds = await pageRepository.GetAll(siteId).ConfigureAwait(false);
          Assert.AreEqual(1, pageIds.Count());
+         Assert.AreEqual(1, pageIds.Count(id => id == pageId));
       }
 
       [Test]
@@ -92,6 +94,25 @@ namespace RimuTec.PiranhaNH.Repositories
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var retrieved = await pageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
          Assert.IsNull(retrieved);
+      }
+
+      [Test]
+      public async Task Delete()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         using var api = CreateApi();
+         var page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now;
+         await pageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         await pageRepository.Delete(pageId).ConfigureAwait(false);
+         var pageIds = await pageRepository.GetAll(siteId).ConfigureAwait(false);
+         Assert.AreEqual(0, pageIds.Count());
       }
 
       private async Task<Guid> MakeSite()

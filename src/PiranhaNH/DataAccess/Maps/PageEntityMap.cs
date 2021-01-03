@@ -31,8 +31,11 @@ namespace RimuTec.PiranhaNH.DataAccess.Maps
          References(e => e.Site);
          References(e => e.Parent);
 
-         HasMany(e => e.Comments);
-         HasMany(e => e.Fields).KeyColumn("PageId");
+         HasMany(e => e.Comments).KeyColumn("PageId").Cascade.AllDeleteOrphan();
+         HasMany(e => e.Fields).KeyColumn("PageId")
+            .Cascade.AllDeleteOrphan() // fields are children of page
+            .Inverse() // field takes care of relationship, i.e. setting PageId
+            ;
          // HasMany(e => e.Blocks);
          // HasMany(e => e.Permissions);
       }

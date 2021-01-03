@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using NHibernate;
 using NHibernate.Linq;
 using Piranha;
 using Piranha.Models;
@@ -25,9 +24,17 @@ namespace RimuTec.PiranhaNH.Repositories
          throw new NotImplementedException();
       }
 
-      public Task<IEnumerable<Guid>> Delete(Guid id)
+      public async Task<IEnumerable<Guid>> Delete(Guid pageId)
       {
-         throw new NotImplementedException();
+         return await InTx(async session =>
+         {
+            var affected = new List<Guid>();
+            var pageEntity = await session.GetAsync<PageEntity>(pageId).ConfigureAwait(false);
+            await session.DeleteAsync(pageEntity).ConfigureAwait(false);
+            var siblings = await session.Query<PageEntity>().Where(p => p.Site == pageEntity.Site && p.Parent == pageEntity.Parent).ToListAsync().ConfigureAwait(false);
+            affected.AddRange(MovePages(siblings, pageId, pageEntity.Site.Id, pageEntity.SortOrder + 1, false));
+            return affected;
+         }).ConfigureAwait(false);
       }
 
       public Task DeleteComment(Guid id)
@@ -85,7 +92,6 @@ namespace RimuTec.PiranhaNH.Repositories
             }
             return null;
          }).ConfigureAwait(false);
-         //throw new NotImplementedException();
       }
 
       public Task<T> GetBySlug<T>(string slug, Guid siteId) where T : PageBase
