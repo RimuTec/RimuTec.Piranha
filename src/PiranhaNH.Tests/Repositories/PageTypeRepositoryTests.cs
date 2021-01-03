@@ -70,6 +70,29 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.IsNull(retrieved);
       }
 
+      [Test]
+      public async Task Delete()
+      {
+         var repo = new PageTypeRepository(SessionFactory);
+         string pageTypeId = $"PageType-{Guid.NewGuid():N}";
+         var model = new PageType()
+         {
+            Id = pageTypeId
+         };
+         await repo.Save(model).ConfigureAwait(false);
+         await repo.Delete(pageTypeId).ConfigureAwait(false);
+         var models = await repo.GetAll().ConfigureAwait(false);
+         Assert.AreEqual(0, models.Count(m => model.Id == m.Id));
+      }
+
+      [Test]
+      public async Task Delete_RandomId()
+      {
+         var repo = new PageTypeRepository(SessionFactory);
+         string pageTypeId = $"PageType-{Guid.NewGuid():N}";
+         await repo.Delete(pageTypeId).ConfigureAwait(false); // should not throw
+      }
+
       private ISessionFactory SessionFactory { get; }
    }
 }

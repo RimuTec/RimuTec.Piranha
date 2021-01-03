@@ -17,9 +17,16 @@ namespace RimuTec.PiranhaNH.Repositories
       {
       }
 
-      public Task Delete(string id)
+      public async Task Delete(string id)
       {
-         throw new NotImplementedException();
+         await InTx(async (session) =>
+         {
+            var entity = await session.GetAsync<PageTypeEntity>(id).ConfigureAwait(false);
+            if (entity != null)
+            {
+               await session.DeleteAsync(entity).ConfigureAwait(false);
+            }
+         }).ConfigureAwait(false);
       }
 
       public async Task<IEnumerable<PageType>> GetAll()
@@ -38,7 +45,7 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async (session) =>
          {
             var entity = await session.GetAsync<PageTypeEntity>(id).ConfigureAwait(false);
-            if(entity != null)
+            if (entity != null)
             {
                return JsonConvert.DeserializeObject<PageType>(entity.Body);
             }
@@ -48,11 +55,11 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task Save(PageType model)
       {
-         if(model == null)
+         if (model == null)
          {
             throw new ArgumentNullException(nameof(model), "Cannot be null. [Code 210103-1659]");
          }
-         if(string.IsNullOrWhiteSpace(model.Id))
+         if (string.IsNullOrWhiteSpace(model.Id))
          {
             throw new ArgumentOutOfRangeException($"{nameof(model)}.{nameof(model.Id)}", "Cannot be null or whitespace. [Code 210103-1645]");
          }
