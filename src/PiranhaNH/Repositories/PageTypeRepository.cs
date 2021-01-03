@@ -40,6 +40,14 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task Save(PageType model)
       {
+         if(model == null)
+         {
+            throw new ArgumentNullException(nameof(model), "Cannot be null. [Code 210103-1659]");
+         }
+         if(string.IsNullOrWhiteSpace(model.Id))
+         {
+            throw new ArgumentOutOfRangeException($"{nameof(model)}.{nameof(model.Id)}", "Cannot be null or whitespace. [Code 210103-1645]");
+         }
          await InTx(async session =>
          {
             DateTime now = DateTime.Now;
