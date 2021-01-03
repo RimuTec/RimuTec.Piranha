@@ -33,9 +33,17 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task<PageType> GetById(string id)
+      public async Task<PageType> GetById(string id)
       {
-         throw new NotImplementedException();
+         return await InTx(async (session) =>
+         {
+            var entity = await session.GetAsync<PageTypeEntity>(id).ConfigureAwait(false);
+            if(entity != null)
+            {
+               return JsonConvert.DeserializeObject<PageType>(entity.Body);
+            }
+            return null;
+         }).ConfigureAwait(false);
       }
 
       public async Task Save(PageType model)

@@ -47,6 +47,29 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual("Cannot be null. [Code 210103-1659] (Parameter 'model')", ex.Message);
       }
 
+      [Test]
+      public async Task GetById()
+      {
+         var repo = new PageTypeRepository(SessionFactory);
+         string pageTypeId = $"PageType-{Guid.NewGuid():N}";
+         var model = new PageType()
+         {
+            Id = pageTypeId
+         };
+         await repo.Save(model).ConfigureAwait(false);
+         var retrieved = await repo.GetById(pageTypeId).ConfigureAwait(false);
+         Assert.AreEqual(pageTypeId, retrieved.Id);
+      }
+
+      [Test]
+      public async Task GetById_RandomId()
+      {
+         var repo = new PageTypeRepository(SessionFactory);
+         string pageTypeId = $"PageType-{Guid.NewGuid():N}";
+         var retrieved = await repo.GetById(pageTypeId).ConfigureAwait(false);
+         Assert.IsNull(retrieved);
+      }
+
       private ISessionFactory SessionFactory { get; }
    }
 }
