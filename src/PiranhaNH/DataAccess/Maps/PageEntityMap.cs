@@ -24,10 +24,17 @@ namespace RimuTec.PiranhaNH.DataAccess.Maps
          Map(e => e.Slug);
          Map(e => e.SortOrder);
          Map(e => e.Title);
+         Map(e => e.CloseCommentsAfterDays);
+         Map(e => e.EnableComments);
 
          References(e => e.PageType);
          References(e => e.Site);
          References(e => e.Parent);
+
+         HasMany(e => e.Comments);
+         HasMany(e => e.Fields).KeyColumn("PageId");
+         // HasMany(e => e.Blocks);
+         // HasMany(e => e.Permissions);
       }
    }
 }

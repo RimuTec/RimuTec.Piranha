@@ -47,7 +47,7 @@ namespace RimuTec.PiranhaNH.Repositories
       }
 
       [Test]
-      public async Task GetAll_WithPage()
+      public async Task GetAll_WithOnePage()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
@@ -61,6 +61,28 @@ namespace RimuTec.PiranhaNH.Repositories
          await pageRepository.Save(page).ConfigureAwait(false);
          var pageIds = await pageRepository.GetAll(siteId).ConfigureAwait(false);
          Assert.AreEqual(1, pageIds.Count());
+      }
+
+      [Test]
+      public async Task GetById()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         using var api = CreateApi();
+         var page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now;
+         await pageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         Assert.AreNotEqual(Guid.Empty, pageId);
+         var retrieved = await pageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
+         Assert.AreEqual(pageId, retrieved.Id);
+         Assert.AreEqual(siteId, retrieved.SiteId);
+         Assert.AreEqual("Startpage", retrieved.Title);
+         Assert.AreEqual("Welcome", retrieved.Text.Value);
       }
 
       private async Task<Guid> MakeSite()

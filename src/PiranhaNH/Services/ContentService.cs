@@ -82,6 +82,7 @@ namespace RimuTec.PiranhaNH.Services
                     foreach (var regionKey in currentRegions)
                     {
                         var region = type.Regions.Single(r => r.Id == regionKey);
+                        var foo = content.Fields.ToArray();
                         var fields = content.Fields.Where(f => f.RegionId == regionKey).OrderBy(f => f.SortOrder).ToList();
 
                         if (!region.Collection)

@@ -104,6 +104,8 @@ namespace RimuTec.PiranhaNH.Entities
       /// </summary>
       public virtual IList<PagePermissionEntity> Permissions { get; set; } = new List<PagePermissionEntity>();
 
+      public virtual IList<PageCommentEntity> Comments { get; set; } = new List<PageCommentEntity>();
+
       /// <summary>
       /// Gets/sets the optional page this page is a copy of
       /// </summary>

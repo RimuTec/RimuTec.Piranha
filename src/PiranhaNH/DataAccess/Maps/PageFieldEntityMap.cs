@@ -17,7 +17,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Maps
          Map(e => e.FieldId);
          Map(e => e.RegionId);
 
-         References(e => e.Page);
+         References(e => e.Page).Column("PageId");
       }
    }
 }

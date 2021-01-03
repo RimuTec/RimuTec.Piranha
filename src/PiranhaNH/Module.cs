@@ -62,6 +62,7 @@ namespace RimuTec.PiranhaNH
                    //.ForMember(p => p.PageTypeId, o => o.MapFrom(m => m.TypeId))
                    .ForMember(p => p.Blocks, o => o.Ignore())
                    .ForMember(p => p.Fields, o => o.Ignore())
+                   .ForMember(p => p.Comments, o => o.Ignore())
                    .ForMember(p => p.Created, o => o.Ignore())
                    .ForMember(p => p.LastModified, o => o.Ignore())
                    .ForMember(p => p.Permissions, o => o.Ignore())

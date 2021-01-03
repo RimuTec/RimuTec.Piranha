@@ -74,9 +74,14 @@ namespace RimuTec.PiranhaNH.Repositories
          throw new NotImplementedException();
       }
 
-      public Task<T> GetById<T>(Guid id) where T : PageBase
+      public async Task<T> GetById<T>(Guid id) where T : PageBase
       {
-         throw new NotImplementedException();
+         return await InTx(async (session) =>
+         {
+            var page = await session.GetAsync<PageEntity>(id).ConfigureAwait(false);
+            return await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
+         }).ConfigureAwait(false);
+         //throw new NotImplementedException();
       }
 
       public Task<T> GetBySlug<T>(string slug, Guid siteId) where T : PageBase
@@ -116,7 +121,7 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task SaveDraft<T>(T model) where T : PageBase
       {
-          await Save(model, true).ConfigureAwait(false);
+         await Save(model, true).ConfigureAwait(false);
       }
 
       /// <summary>
@@ -312,12 +317,12 @@ namespace RimuTec.PiranhaNH.Repositories
                      // var parentPage = model.ParentId != null ? await session.GetAsync<PageEntity>(model.ParentId).ConfigureAwait(false) : null;
                      // if(modelSite != null && parentPage != null)
                      // {
-                        // var foo1 = await session.Query<PageEntity>().Where(p => p.Site == modelSite).ToListAsync().ConfigureAwait(false);
-                        // var foo2 = await session.Query<PageEntity>().Where(p => p.Parent == parentPage).ToListAsync().ConfigureAwait(false);
-                        //var dest = await session.Query<PageEntity>().Where(p => p.Site == modelSite && p.Parent == parentPage).ToListAsync().ConfigureAwait(false);
-                        var dest = await session.Query<PageEntity>().Where(p => p.Site != null && p.Parent != null && p.Site.Id == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
-                        //var dest = await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
-                        affected.AddRange(MovePages(dest, page.Id, model.SiteId, model.SortOrder, true));
+                     // var foo1 = await session.Query<PageEntity>().Where(p => p.Site == modelSite).ToListAsync().ConfigureAwait(false);
+                     // var foo2 = await session.Query<PageEntity>().Where(p => p.Parent == parentPage).ToListAsync().ConfigureAwait(false);
+                     //var dest = await session.Query<PageEntity>().Where(p => p.Site == modelSite && p.Parent == parentPage).ToListAsync().ConfigureAwait(false);
+                     var dest = await session.Query<PageEntity>().Where(p => p.Site != null && p.Parent != null && p.Site.Id == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
+                     //var dest = await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
+                     affected.AddRange(MovePages(dest, page.Id, model.SiteId, model.SortOrder, true));
                      // }
                   }
                }
@@ -536,6 +541,51 @@ namespace RimuTec.PiranhaNH.Repositories
             }
             return affected;
          }).ConfigureAwait(false);
+      }
+
+      /// <summary>
+      /// Performs additional processing and loads related models.
+      /// </summary>
+      /// <param name="page">The source page</param>
+      /// <param name="model">The targe model</param>
+      private Task Process<T>(PageEntity page, T model) where T : PageBase
+      {
+         // Permissions
+         foreach (var permission in page.Permissions)
+         {
+            model.Permissions.Add(permission.Permission);
+         }
+
+         // Comments
+         model.EnableComments = page.EnableComments;
+         if (model.EnableComments)
+         {
+            model.CommentCount = page.Comments.Count;///await _db.PageComments.CountAsync(c => c.PageId == model.Id).ConfigureAwait(false);
+            //model.CommentCount = await _db.PageComments.CountAsync(c => c.PageId == model.Id).ConfigureAwait(false);
+         }
+         model.CloseCommentsAfterDays = page.CloseCommentsAfterDays;
+
+         // Blocks
+         if (!(model is IContentInfo))
+         {
+            if (page.Blocks.Count > 0)
+            {
+               foreach (var pageBlock in page.Blocks.OrderBy(b => b.SortOrder))
+               {
+                  if (pageBlock.Block.ParentId.HasValue)
+                  {
+                     var parent = page.Blocks.FirstOrDefault(b => b.BlockId == pageBlock.Block.ParentId.Value);
+                     if (parent != null)
+                     {
+                        pageBlock.Block.ParentId = parent.Block.Id;
+                     }
+                  }
+               }
+               model.Blocks = _contentService.TransformBlocks(page.Blocks.OrderBy(b => b.SortOrder).Select(b => b.Block));
+            }
+         }
+
+         return Task.CompletedTask;
       }
 
       /// <summary>
