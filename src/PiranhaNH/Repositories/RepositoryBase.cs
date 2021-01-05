@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using NHibernate;
 
@@ -27,6 +28,7 @@ namespace RimuTec.PiranhaNH.Repositories
                 catch (Exception ex)
                 {
                     // TODO: exception handling including retry logic
+                    Trace.WriteLine($"Exception {ex}. Inner exception ${ex.InnerException}");
                     await txn.RollbackAsync().ConfigureAwait(false);
                     throw;
                 }

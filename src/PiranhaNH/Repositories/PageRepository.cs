@@ -278,7 +278,7 @@ namespace RimuTec.PiranhaNH.Repositories
                      {
                         draft = new PageRevisionEntity
                         {
-                           Id = Guid.NewGuid(),
+                           //Id = Guid.NewGuid(),
                            Page = page
                            //PageId = page.Id
                         };
@@ -339,7 +339,7 @@ namespace RimuTec.PiranhaNH.Repositories
                else
                {
                   // Check if the page has been moved
-                  if (!isDraft && (page.Parent.Id != model.ParentId || page.SortOrder != model.SortOrder))
+                  if (!isDraft && (page.Parent?.Id != model.ParentId || page.SortOrder != model.SortOrder))
                   {
                      var source = await session.Query<PageEntity>().Where(p => p.Site == page.Site && p.Parent.Id == page.Parent.Id && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
                      //var source = await _db.Pages.Where(p => p.SiteId == page.SiteId && p.ParentId == page.Parent.Id && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
@@ -400,15 +400,16 @@ namespace RimuTec.PiranhaNH.Repositories
 
                if (blockModels != null)
                {
-                  var blocks = _contentService.TransformBlocks(blockModels);
+                  var blocks = _contentService.TransformBlocks(blockModels, session);
+
                   var current = blocks.Select(b => b.Id).ToArray();
 
                   // Delete removed blocks
                   var removed = page.Blocks
-                      .Where(b => !current.Contains(b.BlockId) && !b.Block.IsReusable && b.Block.ParentId == null)
+                      .Where(b => !current.Contains(b.Block.Id) && !b.Block.IsReusable && b.Block.ParentId == null)
                       .Select(b => b.Block);
                   var removedItems = page.Blocks
-                      .Where(b => !current.Contains(b.BlockId) && b.Block.ParentId != null && removed.Select(p => p.Id).ToList().Contains(b.Block.ParentId.Value))
+                      .Where(b => !current.Contains(b.Block.Id) && b.Block.ParentId != null && removed.Select(p => p.Id).ToList().Contains(b.Block.ParentId.Value))
                       .Select(b => b.Block);
 
                   if (!isDraft)
@@ -420,7 +421,7 @@ namespace RimuTec.PiranhaNH.Repositories
                      //_db.Blocks.RemoveRange(removed);
                      foreach (var block in removedItems)
                      {
-                        await session.DeleteAsync(block);
+                        await session.DeleteAsync(block).ConfigureAwait(false);
                      }
                      //_db.Blocks.RemoveRange(removedItems);
                   }
@@ -431,7 +432,8 @@ namespace RimuTec.PiranhaNH.Repositories
                   // Now map the new block
                   for (var n = 0; n < blocks.Count; n++)
                   {
-                     var block = await session.Query<BlockEntity>().FirstOrDefaultAsync(b => b.Id == blocks[n].Id).ConfigureAwait(false);
+                     var block = await session.GetAsync<BlockEntity>(blocks[n].Id).ConfigureAwait(false);
+                     //var block = await session.Query<BlockEntity>().FirstOrDefaultAsync(b => b.Id == blocks[n].Id).ConfigureAwait(false);
                      // IQueryable<BlockEntity> blockQuery = _db.Blocks;
                      // if (isDraft)
                      // {
@@ -447,13 +449,12 @@ namespace RimuTec.PiranhaNH.Repositories
                      {
                         block = new BlockEntity
                         {
-                           Id = blocks[n].Id != Guid.Empty ? blocks[n].Id : Guid.NewGuid(),
+                           //Id = blocks[n].Id != Guid.Empty ? blocks[n].Id : Guid.NewGuid(),
                            Created = DateTime.Now
                         };
                         if (!isDraft)
                         {
-                           await session.SaveOrUpdateAsync(block).ConfigureAwait(false);
-                           //await _db.Blocks.AddAsync(block).ConfigureAwait(false);
+                           session.Save(block);
                         }
                      }
                      block.ParentId = blocks[n].ParentId;
@@ -461,6 +462,8 @@ namespace RimuTec.PiranhaNH.Repositories
                      block.IsReusable = blocks[n].IsReusable;
                      block.Title = blocks[n].Title;
                      block.LastModified = DateTime.Now;
+
+                     session.Flush();
 
                      var currentFields = blocks[n].Fields.Select(f => f.FieldId).Distinct();
                      var removedFields = block.Fields.Where(f => !currentFields.Contains(f.FieldId));
@@ -481,13 +484,15 @@ namespace RimuTec.PiranhaNH.Repositories
                         {
                            field = new BlockFieldEntity
                            {
-                              Id = newField.Id != Guid.Empty ? newField.Id : Guid.NewGuid(),
-                              BlockId = block.Id,
+                              //Id = newField.Id != Guid.Empty ? newField.Id : Guid.NewGuid(),
+                              Block = block,
+                              //BlockId = block.Id,
                               FieldId = newField.FieldId
+                              //CLRType = newField.CLRType
                            };
                            if (!isDraft)
                            {
-                              await session.SaveAsync(field).ConfigureAwait(false);
+                              //await session.SaveAsync(field).ConfigureAwait(false);
                               //await _db.BlockFields.AddAsync(field).ConfigureAwait(false);
                            }
                            block.Fields.Add(field);
@@ -495,15 +500,20 @@ namespace RimuTec.PiranhaNH.Repositories
                         field.SortOrder = newField.SortOrder;
                         field.CLRType = newField.CLRType;
                         field.Value = newField.Value;
+                        if(!isDraft)
+                        {
+                           await session.SaveOrUpdateAsync(field).ConfigureAwait(false);
+                        }
                      }
 
                      // Create the page block
                      var pageBlock = new PageBlockEntity
                      {
-                        Id = Guid.NewGuid(),
-                        BlockId = block.Id,
+                        //Id = Guid.NewGuid(),
                         Block = block,
-                        PageId = page.Id,
+                        //BlockId = block.Id,
+                        Page = page,
+                        //PageId = page.Id,
                         SortOrder = n
                      };
                      if (!isDraft)
@@ -532,7 +542,7 @@ namespace RimuTec.PiranhaNH.Repositories
                   {
                      draft = new PageRevisionEntity
                      {
-                        Id = Guid.NewGuid(),
+                        //Id = Guid.NewGuid(),
                         Page = page
                         //PageId = page.Id
                      };
@@ -584,7 +594,7 @@ namespace RimuTec.PiranhaNH.Repositories
                {
                   if (pageBlock.Block.ParentId.HasValue)
                   {
-                     var parent = page.Blocks.FirstOrDefault(b => b.BlockId == pageBlock.Block.ParentId.Value);
+                     var parent = page.Blocks.FirstOrDefault(b => b.Block.Id == pageBlock.Block.ParentId.Value);
                      if (parent != null)
                      {
                         pageBlock.Block.ParentId = parent.Block.Id;
@@ -616,6 +626,7 @@ namespace RimuTec.PiranhaNH.Repositories
          }
          return affected.ConvertAll(p => p.Id);
       }
+
       private readonly IContentService<PageEntity, PageFieldEntity, PageBase> _contentService;
    }
 }

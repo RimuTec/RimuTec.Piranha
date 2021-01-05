@@ -36,7 +36,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Maps
             .Cascade.AllDeleteOrphan() // fields are children of page
             .Inverse() // field takes care of relationship, i.e. setting PageId
             ;
-         // HasMany(e => e.Blocks);
+         HasMany(e => e.Blocks).KeyColumn("PageId");
          // HasMany(e => e.Permissions);
       }
    }

@@ -12,7 +12,7 @@ namespace RimuTec.PiranhaNH.Entities
       /// <summary>
       /// Gets/sets the unique id.
       /// </summary>
-      public Guid Id { get; set; }
+      public Guid Id { get; private set; }
 
       /// <summary>
       /// This property is not used any more, but is kept for atm

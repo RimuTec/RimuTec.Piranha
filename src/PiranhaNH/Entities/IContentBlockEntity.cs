@@ -10,12 +10,12 @@ namespace RimuTec.PiranhaNH.Entities
         /// <summary>
         /// Gets/sets the unique id.
         /// </summary>
-        Guid Id { get; set; }
+        Guid Id { get; /*set;*/ }
 
-        /// <summary>
-        /// Gets/sets the block id.
-        /// </summary>
-        Guid BlockId { get; set; }
+      //   /// <summary>
+      //   /// Gets/sets the block id.
+      //   /// </summary>
+      //   Guid BlockId { get; set; }
 
         /// <summary>
         /// Gets/sets the zero based sort index.

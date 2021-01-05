@@ -7,7 +7,7 @@ namespace RimuTec.PiranhaNH.Entities
         /// <summary>
         /// Gets/sets the unique id.
         /// </summary>
-        public virtual Guid Id { get; set; }
+        public virtual Guid Id { get; private set; }
 
         /// <summary>
         /// Gets/sets the region id.

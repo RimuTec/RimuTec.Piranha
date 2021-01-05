@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NHibernate;
 using RimuTec.PiranhaNH.Entities;
 
 namespace RimuTec.PiranhaNH.Services
@@ -43,6 +44,6 @@ namespace RimuTec.PiranhaNH.Services
       /// </summary>
       /// <param name="models">The blocks</param>
       /// <returns>The data model</returns>
-      IList<BlockEntity> TransformBlocks(IList<Piranha.Extend.Block> models);
+      IList<BlockEntity> TransformBlocks(IList<Piranha.Extend.Block> models, ISession session);
    }
 }

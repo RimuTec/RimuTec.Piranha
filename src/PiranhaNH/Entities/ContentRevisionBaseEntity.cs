@@ -8,7 +8,7 @@ namespace RimuTec.PiranhaNH.Entities
       /// <summary>
       /// Gets/sets the unique id.
       /// </summary>
-      public Guid Id { get; set; }
+      public Guid Id { get; private set; }
 
       /// <summary>
       /// Gets/sets the data of the revision serialized

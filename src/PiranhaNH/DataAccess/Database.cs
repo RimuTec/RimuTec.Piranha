@@ -5,6 +5,7 @@ using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate;
 using NHibernate.Dialect;
+using NHibernate.Event;
 using NHibernate.Tool.hbm2ddl;
 
 namespace RimuTec.PiranhaNH.DataAccess
@@ -50,11 +51,20 @@ namespace RimuTec.PiranhaNH.DataAccess
 
             return Fluently.Configure()
                 .Database(
-                    MsSqlConfiguration.MsSql2012.ConnectionString(ConnectionString)
+                    MsSqlConfiguration.MsSql2012
+                     //.ShowSql()
+                     .ConnectionString(ConnectionString)
                 )
                 .Mappings(m => m.FluentMappings
                     .AddFromAssemblyOf<Database>()
                     .Conventions.Add(FluentNHibernate.Conventions.Helpers.ForeignKey.EndsWith("Id")))
+                    .ExposeConfiguration(cfg =>
+                    {
+                       var auditEventListener = new AuditEventListener();
+                       cfg.EventListeners.PreInsertEventListeners = new IPreInsertEventListener[] { auditEventListener };
+                       cfg.EventListeners.PreUpdateEventListeners = new IPreUpdateEventListener[] { auditEventListener };
+                       cfg.SetInterceptor(new SqlStatementInterceptor());
+                    })
                //  .ExposeConfiguration(cfg => {
                //      //cfg.SetNamingStrategy(null);
                //      SchemaMetadataUpdater.QuoteTableAndColumns(cfg, Dialect.GetDialect());
