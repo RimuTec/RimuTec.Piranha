@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using NHibernate;
 using NUnit.Framework;
@@ -18,18 +19,32 @@ namespace RimuTec.PiranhaNH.Repositories
       [Test]
       public async Task GetByKey()
       {
+         var repository = new ParamRepository(SessionFactory);
+         Param param = MakeParam();
+         await repository.Save(param).ConfigureAwait(false);
+         var retrieved = await repository.GetByKey(param.Key).ConfigureAwait(false);
+         Assert.AreEqual(param.Value, retrieved.Value);
+      }
+
+      [Test]
+      public async Task Save_SetsIdOnModel()
+      {
+         var repository = new ParamRepository(SessionFactory);
+         var param = MakeParam();
+         await repository.Save(param).ConfigureAwait(false);
+         Assert.AreNotEqual(Guid.Empty, param.Id);
+      }
+
+      private static Param MakeParam()
+      {
          int aNumber = RandomNumber.Next(9999);
          string key = $"Key-{aNumber}";
          string value = $"Value-{aNumber}";
-         var repository = new ParamRepository(SessionFactory);
-         var param = new Param
+         return new Param
          {
             Key = key,
             Value = value
          };
-         await repository.Save(param).ConfigureAwait(false);
-         var retrieved = await repository.GetByKey(key).ConfigureAwait(false);
-         Assert.AreEqual(value, retrieved.Value);
       }
 
       private ISessionFactory SessionFactory { get; }

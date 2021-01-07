@@ -59,7 +59,7 @@ namespace RimuTec.PiranhaNH.Repositories
                Key = model.Key,
                Value = model.Value
             };
-            await session.SaveAsync(entity).ConfigureAwait(false);
+            model.Id = (Guid) await session.SaveAsync(entity).ConfigureAwait(false);
          }).ConfigureAwait(false);
       }
    }
