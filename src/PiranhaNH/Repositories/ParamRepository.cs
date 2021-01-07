@@ -30,9 +30,25 @@ namespace RimuTec.PiranhaNH.Repositories
          throw new NotImplementedException();
       }
 
-      public Task<Param> GetById(Guid id)
+      public async Task<Param> GetById(Guid id)
       {
-         throw new NotImplementedException();
+         return await InTx(async session =>
+         {
+            var param = await session.GetAsync<ParamEntity>(id).ConfigureAwait(false);
+            if (param != null)
+            {
+               return new Param
+               {
+                  Id = param.Id,
+                  Key = param.Key,
+                  Description = param.Description,
+                  Value = param.Value,
+                  Created = param.Created,
+                  LastModified = param.LastModified
+               };
+            }
+            return null;
+         }).ConfigureAwait(false);
       }
 
       public async Task<Param> GetByKey(string key)

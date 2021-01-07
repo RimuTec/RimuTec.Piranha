@@ -64,26 +64,48 @@ namespace RimuTec.PiranhaNH.Repositories
       [Test]
       public async Task UpdateDescription()
       {
-         var description = Company.Bs();
          var repository = new ParamRepository(SessionFactory);
          var param = MakeParam();
          await repository.Save(param).ConfigureAwait(false);
-         var modifiedDescription = description + " (modified)";
+         var modifiedDescription = param.Description + " (modified)";
          param.Description = modifiedDescription;
          await repository.Save(param).ConfigureAwait(false);
          var retrieved = await repository.GetByKey(param.Key).ConfigureAwait(false);
+         Assert.NotNull(param.Description);
          Assert.AreEqual(modifiedDescription, retrieved.Description);
+      }
+
+      [Test]
+      public async Task GetById()
+      {
+         var repository = new ParamRepository(SessionFactory);
+         var param = MakeParam();
+         await repository.Save(param).ConfigureAwait(false);
+         var paramId = param.Id;
+         var retrieved = await repository.GetById(paramId).ConfigureAwait(false);
+         Assert.AreEqual(paramId, retrieved.Id);
+         Assert.AreEqual(param.Key, retrieved.Key);
+         Assert.AreEqual(param.Value, retrieved.Value);
+      }
+
+      [Test]
+      public async Task GetById_WithRandomId()
+      {
+         var repository = new ParamRepository(SessionFactory);
+         var retrieved = await repository.GetById(Guid.NewGuid()).ConfigureAwait(false);
+         Assert.Null(retrieved);
       }
 
       private static Param MakeParam()
       {
-         int aNumber = RandomNumber.Next(9999);
-         string key = $"Key-{aNumber}";
-         string value = $"Value-{aNumber}";
+         Guid aRandomValue = Guid.NewGuid();
+         string key = $"Key-{aRandomValue:N}";
+         string value = $"Value-{aRandomValue:N}";
          return new Param
          {
             Key = key,
-            Value = value
+            Value = value,
+            Description = Company.Bs()
          };
       }
 
