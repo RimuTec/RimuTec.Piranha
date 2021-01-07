@@ -65,6 +65,7 @@ namespace RimuTec.PiranhaNH.Repositories
                ParamEntity entity = await session.GetAsync<ParamEntity>(model.Id).ConfigureAwait(false) ?? new ParamEntity();
                entity.Key = model.Key;
                entity.Value = model.Value;
+               entity.Description = model.Description;
                model.Id = (Guid)await session.SaveAsync(entity).ConfigureAwait(false);
             }).ConfigureAwait(false);
          }
