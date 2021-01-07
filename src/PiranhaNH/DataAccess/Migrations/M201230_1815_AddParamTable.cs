@@ -7,9 +7,10 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
    {
       public override void Up()
       {
+         const string tableName = "Param";
          const string keyColumn = "Key";
 
-         Create.Table("Param")
+         Create.Table(tableName)
             .WithColumn("Id").AsGuid().PrimaryKey().NotNullable()
             .WithColumn("Created").AsDateTime().NotNullable()
             .WithColumn("LastModified").AsDateTime().NotNullable()
@@ -18,8 +19,8 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
             .WithColumn("Value").AsString(int.MaxValue).Nullable()
             ;
 
-         Create.Index("IDX_Param_Key")
-            .OnTable("Param")
+         Create.Index(MakeIndexName(tableName, keyColumn))
+            .OnTable(tableName)
             .OnColumn(keyColumn)
             ;
       }

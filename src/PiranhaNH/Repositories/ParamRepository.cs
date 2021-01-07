@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using NHibernate;
+using NHibernate.Exceptions;
 using NHibernate.Linq;
 using Piranha.Models;
 using Piranha.Repositories;
@@ -54,13 +58,58 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task Save(Param model)
       {
-         await InTx(async session => {
-            var entity = new ParamEntity {
-               Key = model.Key,
-               Value = model.Value
-            };
-            model.Id = (Guid) await session.SaveAsync(entity).ConfigureAwait(false);
-         }).ConfigureAwait(false);
+         try
+         {
+            await InTx(async session =>
+            {
+               ParamEntity entity = await session.GetAsync<ParamEntity>(model.Id).ConfigureAwait(false) ?? new ParamEntity();
+               entity.Key = model.Key;
+               entity.Value = model.Value;
+               model.Id = (Guid)await session.SaveAsync(entity).ConfigureAwait(false);
+            }).ConfigureAwait(false);
+         }
+         catch (GenericADOException ex)
+         {
+            if (ex.IsDuplicateKey())
+            {
+               throw new ValidationException("The Key field must be unique");
+            }
+            TestContextWriter.WriteLine($"GenericADOException: HRESULT = {ex.HResult}");
+            throw;
+         }
       }
+   }
+
+   internal static class GenericADOExceptionExtensions
+   {
+      public static bool IsDuplicateKey(this GenericADOException exception)
+      {
+         return exception.InnerException is SqlException inner && inner.Number == 2601;
+      }
+   }
+
+   internal static class TestContextWriter
+   {
+      static TestContextWriter()
+      {
+         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+         var allTypes = new List<Type>();
+         foreach (var assembly in assemblies)
+         {
+            allTypes.AddRange(assembly.GetTypes());
+         }
+         var testContext = allTypes.Single(t => t.FullName.Equals("nunit.framework.testcontext", StringComparison.OrdinalIgnoreCase));
+         if (testContext != null)
+         {
+            _mi = testContext.GetMethod("WriteLine", new Type[] { typeof(string) });
+         }
+      }
+
+      public static void WriteLine(string message)
+      {
+         _mi?.Invoke(null, new[] { message });
+      }
+
+      private static readonly MethodInfo _mi;
    }
 }
