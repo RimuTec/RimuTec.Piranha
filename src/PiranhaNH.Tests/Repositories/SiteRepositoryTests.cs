@@ -214,7 +214,7 @@ namespace RimuTec.PiranhaNH.Repositories
          await repository.Save(site).ConfigureAwait(false);
          var siteId = site.Id;
          var ex = Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.SaveContent<MySiteContent>(siteId, null).ConfigureAwait(false));
-         Assert.AreEqual($"Parameter 'content' cannot be null. [Location 201226-2334] (Parameter 'content')", ex.Message);
+         Assert.AreEqual("Parameter 'content' cannot be null. [Location 201226-2334] (Parameter 'content')", ex.Message);
       }
 
       // Need PageRepository for the following test to work

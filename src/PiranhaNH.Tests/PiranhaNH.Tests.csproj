@@ -13,6 +13,7 @@
     <PackageReference Include="Piranha.AttributeBuilder" Version="8.4.0" />
     <PackageReference Include="Piranha.ImageSharp" Version="8.4.0" />
     <PackageReference Include="Piranha.Local.FileStorage" Version="8.4.0" />
+    <PackageReference Include="RimuTec.Faker" Version="1.10.0" />
   </ItemGroup>
 
   <ItemGroup>

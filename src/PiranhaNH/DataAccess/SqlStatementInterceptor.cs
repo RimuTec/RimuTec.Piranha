@@ -46,12 +46,12 @@ namespace RimuTec.PiranhaNH.DataAccess
          //   Trace.WriteLine(preparedStatement);
          //}
 
-         if(preparedSqlAsString.IndexOf("UPDATE Block", StringComparison.OrdinalIgnoreCase) >= 0)
-         {
-            Trace.WriteLine("###############################################");
-            Trace.WriteLine(preparedSqlAsString);
-            Trace.WriteLine("###############################################");
-         }
+         // if(preparedSqlAsString.IndexOf("UPDATE Block", StringComparison.OrdinalIgnoreCase) >= 0)
+         // {
+         //    Trace.WriteLine("###############################################");
+         //    Trace.WriteLine(preparedSqlAsString);
+         //    Trace.WriteLine("###############################################");
+         // }
 
          return preparedSql;
       }

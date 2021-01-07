@@ -16,5 +16,5 @@ namespace RimuTec.PiranhaNH.DataAccess.Maps
          Map(e => e.CLRType);
          Map(e => e.Body);
       }
-   } 
+   }
 }

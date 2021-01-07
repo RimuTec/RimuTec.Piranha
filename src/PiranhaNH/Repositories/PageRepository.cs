@@ -580,7 +580,8 @@ namespace RimuTec.PiranhaNH.Repositories
          model.EnableComments = page.EnableComments;
          if (model.EnableComments)
          {
-            model.CommentCount = page.Comments.Count;///await _db.PageComments.CountAsync(c => c.PageId == model.Id).ConfigureAwait(false);
+            model.CommentCount = page.Comments.Count;
+            ///await _db.PageComments.CountAsync(c => c.PageId == model.Id).ConfigureAwait(false);
             //model.CommentCount = await _db.PageComments.CountAsync(c => c.PageId == model.Id).ConfigureAwait(false);
          }
          model.CloseCommentsAfterDays = page.CloseCommentsAfterDays;

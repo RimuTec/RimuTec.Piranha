@@ -52,9 +52,15 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task Save(Param model)
+      public async Task Save(Param model)
       {
-         throw new NotImplementedException();
+         await InTx(async session => {
+            var entity = new ParamEntity {
+               Key = model.Key,
+               Value = model.Value
+            };
+            await session.SaveAsync(entity).ConfigureAwait(false);
+         }).ConfigureAwait(false);
       }
    }
 }
