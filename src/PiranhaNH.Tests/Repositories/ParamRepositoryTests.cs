@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
 using NUnit.Framework;
@@ -114,6 +115,34 @@ namespace RimuTec.PiranhaNH.Repositories
          var repository = new ParamRepository(SessionFactory);
          await repository.Delete(Guid.NewGuid()).ConfigureAwait(false);
          // should not throw exception
+      }
+
+      [Test]
+      public async Task GetAll()
+      {
+         var repository = new ParamRepository(SessionFactory);
+         var param = MakeParam();
+         await repository.Save(param).ConfigureAwait(false);
+         var paramId = param.Id;
+         var parameters = await repository.GetAll().ConfigureAwait(false);
+         Assert.AreEqual(1, parameters.Count(p => p.Id == paramId));
+         foreach(var p in parameters) {
+            await repository.Delete(p.Id).ConfigureAwait(false);
+         }
+         parameters = await repository.GetAll().ConfigureAwait(false);
+         Assert.AreEqual(0, parameters.Count());
+      }
+
+      [Test]
+      public async Task GetAll_NoParameters()
+      {
+         var repository = new ParamRepository(SessionFactory);
+         var parameters = await repository.GetAll().ConfigureAwait(false);
+         foreach(var p in parameters) {
+            await repository.Delete(p.Id).ConfigureAwait(false);
+         }
+         parameters = await repository.GetAll().ConfigureAwait(false);
+         Assert.AreEqual(0, parameters.Count());
       }
 
       private static Param MakeParam()

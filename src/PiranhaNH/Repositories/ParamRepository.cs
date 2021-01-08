@@ -32,9 +32,27 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task<IEnumerable<Param>> GetAll()
+      public async Task<IEnumerable<Param>> GetAll()
       {
-         throw new NotImplementedException();
+         return await InTx(async session =>
+         {
+            List<Param> models = new List<Param>();
+            var entities = await session.Query<ParamEntity>().ToListAsync().ConfigureAwait(false);
+            models.AddRange(
+               entities.Select(param =>
+                  new Param
+                  {
+                     Id = param.Id,
+                     Key = param.Key,
+                     Description = param.Description,
+                     Value = param.Value,
+                     Created = param.Created,
+                     LastModified = param.LastModified
+                  }
+               )
+            );
+            return models;
+         }).ConfigureAwait(false);
       }
 
       public async Task<Param> GetById(Guid id)
