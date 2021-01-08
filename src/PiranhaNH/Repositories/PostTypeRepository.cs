@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,14 +33,26 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task<PostType> GetById(string id)
+      public async Task<PostType> GetById(string id)
       {
-         throw new System.NotImplementedException();
+         return await InTx(async session =>
+         {
+            var type = await session.GetAsync<PostTypeEntity>(id).ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<PostType>(type.Body);
+         }).ConfigureAwait(false);
       }
 
-      public Task Save(PostType model)
+      public async Task Save(PostType model)
       {
-         throw new System.NotImplementedException();
+         await InTx(async session =>
+         {
+            var now = DateTime.Now;
+            var type = await session.GetAsync<PostTypeEntity>(model.Id).ConfigureAwait(false) ?? new PostTypeEntity { Id = model.Id, Created = now };
+            type.CLRType = model.CLRType;
+            type.Body = JsonConvert.SerializeObject(model);
+            type.LastModified = now;
+            await session.SaveOrUpdateAsync(type).ConfigureAwait(false);
+         }).ConfigureAwait(false);
       }
    }
 }
