@@ -20,9 +20,16 @@ namespace RimuTec.PiranhaNH.Repositories
       {
       }
 
-      public Task Delete(Guid id)
+      public async Task Delete(Guid id)
       {
-         throw new NotImplementedException();
+         await InTx(async session =>
+         {
+            var entity = await session.GetAsync<ParamEntity>(id).ConfigureAwait(false);
+            if (entity != null)
+            {
+               await session.DeleteAsync(entity).ConfigureAwait(false);
+            }
+         }).ConfigureAwait(false);
       }
 
       public Task<IEnumerable<Param>> GetAll()

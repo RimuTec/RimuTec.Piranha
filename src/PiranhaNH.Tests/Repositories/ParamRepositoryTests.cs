@@ -96,6 +96,26 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.Null(retrieved);
       }
 
+      [Test]
+      public async Task Delete()
+      {
+         var repository = new ParamRepository(SessionFactory);
+         var param = MakeParam();
+         await repository.Save(param).ConfigureAwait(false);
+         var paramId = param.Id;
+         await repository.Delete(paramId).ConfigureAwait(false);
+         var retrieved = await repository.GetById(paramId).ConfigureAwait(false);
+         Assert.Null(retrieved);
+      }
+
+      [Test]
+      public async Task Delete_WithRandomId()
+      {
+         var repository = new ParamRepository(SessionFactory);
+         await repository.Delete(Guid.NewGuid()).ConfigureAwait(false);
+         // should not throw exception
+      }
+
       private static Param MakeParam()
       {
          Guid aRandomValue = Guid.NewGuid();
