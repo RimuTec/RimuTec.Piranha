@@ -37,6 +37,27 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.Null(retrieved);
       }
 
+      [Test]
+      public async Task Delete()
+      {
+         var repository = new PostTypeRepository(SessionFactory);
+         var postType = MakePostType();
+         var postTypeId = postType.Id;
+         await repository.Save(postType).ConfigureAwait(false);
+         await repository.Delete(postTypeId).ConfigureAwait(false);
+         var retrieved = await repository.GetById(postTypeId).ConfigureAwait(false);
+         Assert.Null(retrieved);
+      }
+
+      [Test]
+      public async Task Delete_WithRandomId()
+      {
+         var repository = new PostTypeRepository(SessionFactory);
+         var randomPostTypeId = $"PostType-{RandomNumber.Next()}";
+         await repository.Delete(randomPostTypeId).ConfigureAwait(false);
+         // should not throw an error
+      }
+
       private static PostType MakePostType()
       {
          return new PostType

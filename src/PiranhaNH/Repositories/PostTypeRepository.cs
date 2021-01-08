@@ -17,9 +17,16 @@ namespace RimuTec.PiranhaNH.Repositories
       {
       }
 
-      public Task Delete(string id)
+      public async Task Delete(string id)
       {
-         throw new System.NotImplementedException();
+         await InTx(async session =>
+         {
+            var type = await session.GetAsync<PostTypeEntity>(id).ConfigureAwait(false);
+            if (type != null)
+            {
+               await session.DeleteAsync(type).ConfigureAwait(false);
+            }
+         }).ConfigureAwait(false);
       }
 
       public async Task<IEnumerable<PostType>> GetAll()
@@ -38,7 +45,7 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async session =>
          {
             var type = await session.GetAsync<PostTypeEntity>(id).ConfigureAwait(false);
-            if(type != null)
+            if (type != null)
             {
                return JsonConvert.DeserializeObject<PostType>(type.Body);
             }
