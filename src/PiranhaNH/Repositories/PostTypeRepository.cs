@@ -38,7 +38,11 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async session =>
          {
             var type = await session.GetAsync<PostTypeEntity>(id).ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<PostType>(type.Body);
+            if(type != null)
+            {
+               return JsonConvert.DeserializeObject<PostType>(type.Body);
+            }
+            return null;
          }).ConfigureAwait(false);
       }
 

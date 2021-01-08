@@ -28,6 +28,15 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(1, retrieved.Regions.Count);
       }
 
+      [Test]
+      public async Task GetById_WithRandomId()
+      {
+         var repository = new PostTypeRepository(SessionFactory);
+         var randomPostTypeId = $"PostType-{RandomNumber.Next()}";
+         var retrieved = await repository.GetById(randomPostTypeId).ConfigureAwait(false);
+         Assert.Null(retrieved);
+      }
+
       private static PostType MakePostType()
       {
          return new PostType
