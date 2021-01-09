@@ -198,6 +198,28 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(0, comments.Count());
       }
 
+      [Test]
+      public async Task GetAllComments_PageWithOneComment()
+      {
+         const int with10Words = 10;
+         const int pageIndex = 0;
+         const int pageSize = 10;
+         var firstName = Faker.Name.FirstName();
+         var lastName = Faker.Name.LastName();
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         var comment = new Comment
+         {
+            Author = $"{firstName} {lastName}",
+            Email = Faker.Internet.Email(firstName),
+            Body = Faker.Lorem.Sentence(with10Words)
+         };
+         await pageRepository.SaveComment(firstPage.Id, comment).ConfigureAwait(false);
+         var comments = await pageRepository.GetAllComments(firstPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
+         Assert.AreEqual(0, comments.Count());
+      }
+
       private async Task<Guid> MakeSite()
       {
          var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));

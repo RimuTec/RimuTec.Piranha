@@ -11,6 +11,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Maps
 
          Id(e => e.Id);
          Map(e => e.Created);
+         Map(e => e.LastModified);
 
          Map(e => e.Author);
          Map(e => e.Body);

@@ -138,9 +138,19 @@ namespace RimuTec.PiranhaNH.Repositories
          return Save(model, false);
       }
 
-      public Task SaveComment(Guid pageId, Comment model)
+      public async Task SaveComment(Guid pageId, Comment model)
       {
-         throw new NotImplementedException();
+         await InTx(async session =>
+         {
+            var pageComment = new PageCommentEntity
+            {
+               Page = await session.GetAsync<PageEntity>(pageId).ConfigureAwait(false),
+               Author = model.Author,
+               Email = model.Email,
+               Body = model.Body
+            };
+            await session.SaveAsync(pageComment).ConfigureAwait(false);
+         }).ConfigureAwait(false);
       }
 
       public async Task SaveDraft<T>(T model) where T : PageBase

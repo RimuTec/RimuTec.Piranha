@@ -2,12 +2,17 @@ using System;
 
 namespace RimuTec.PiranhaNH.Entities
 {
-   internal abstract class CommentEntity
+   internal abstract class CommentEntity : EntityBase
    {
-        /// <summary>
-        /// Gets/sets the unique id.
-        /// </summary>
-        public virtual Guid Id { get; private set; }
+      //   /// <summary>
+      //   /// Gets/sets the unique id.
+      //   /// </summary>
+      //   public virtual Guid Id { get; private set; }
+
+      //   /// <summary>
+      //   /// Gets/sets the created date.
+      //   /// </summary>
+      //   public virtual DateTime Created { get; set; }
 
         /// <summary>
         /// Gets/sets the optional user id.
@@ -40,10 +45,5 @@ namespace RimuTec.PiranhaNH.Entities
         /// Gets/sets the comment body.
         /// </summary>
         public virtual string Body { get; set; }
-
-        /// <summary>
-        /// Gets/sets the created date.
-        /// </summary>
-        public virtual DateTime Created { get; set; }
    }
 }
