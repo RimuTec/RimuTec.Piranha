@@ -116,7 +116,10 @@ namespace RimuTec.PiranhaNH.Repositories
          //     .ConfigureAwait(false);
          return await InTx(async session =>
          {
-            var page = await session.Query<PageEntity>().FirstOrDefaultAsync(p => p.Site.Id == siteId).ConfigureAwait(false);
+            var page = await session
+               .Query<PageEntity>()
+               .FirstOrDefaultAsync(p => p.Site.Id == siteId && p.Parent == null)
+               .ConfigureAwait(false);
             if (page != null)
             {
                return await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
@@ -331,30 +334,25 @@ namespace RimuTec.PiranhaNH.Repositories
 
                   if (!isDraft)
                   {
-                     //await _db.Pages.AddAsync(page).ConfigureAwait(false);
-
-                     // Make room for the new page
-                     // var modelSite = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false);
-                     // var parentPage = model.ParentId != null ? await session.GetAsync<PageEntity>(model.ParentId).ConfigureAwait(false) : null;
-                     // if(modelSite != null && parentPage != null)
-                     // {
-                     // var foo1 = await session.Query<PageEntity>().Where(p => p.Site == modelSite).ToListAsync().ConfigureAwait(false);
-                     // var foo2 = await session.Query<PageEntity>().Where(p => p.Parent == parentPage).ToListAsync().ConfigureAwait(false);
-                     //var dest = await session.Query<PageEntity>().Where(p => p.Site == modelSite && p.Parent == parentPage).ToListAsync().ConfigureAwait(false);
                      var dest = await session.Query<PageEntity>().Where(p => p.Site != null && p.Parent != null && p.Site.Id == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
                      //var dest = await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
                      affected.AddRange(MovePages(dest, page.Id, model.SiteId, model.SortOrder, true));
-                     // }
                   }
                }
                else
                {
+                  // ### Begin RT changes ###
+                  page.Parent = (model.ParentId != null && model.ParentId != Guid.Empty) ? await session.GetAsync<PageEntity>(model.ParentId).ConfigureAwait(false) : null;
+                  // ### End RT changes #####
                   // Check if the page has been moved
                   if (!isDraft && (page.Parent?.Id != model.ParentId || page.SortOrder != model.SortOrder))
                   {
-                     var source = await session.Query<PageEntity>().Where(p => p.Site == page.Site && p.Parent.Id == page.Parent.Id && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
+                     var siteId = $"Site id = '{page.Site.Id}'";
+                     var isPageParentNull = $"Page parent is null '{page.Parent == null}'";
+                     var parentId = $"Parent id = '{page.Parent.Id}'";
+                     var source = await session.Query<PageEntity>().Where(p => p.Site == page.Site && p.Parent == page.Parent && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
                      //var source = await _db.Pages.Where(p => p.SiteId == page.SiteId && p.ParentId == page.Parent.Id && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
-                     var dest = page.Parent.Id == model.ParentId ? source : await session.Query<PageEntity>().Where(p => p.Site.Id == model.SiteId && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
+                     var dest = page.Parent.Id == model.ParentId ? source : await session.Query<PageEntity>().Where(p => p.Site.Id == model.SiteId && p.Parent != null && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);
                      //var dest = page.Parent.Id == model.ParentId ? source : await _db.Pages.Where(p => p.SiteId == model.SiteId && p.ParentId == model.ParentId).ToListAsync().ConfigureAwait(false);
 
                      // Remove the old position for the page
