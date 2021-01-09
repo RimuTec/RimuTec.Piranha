@@ -109,9 +109,9 @@ namespace RimuTec.PiranhaNH.Repositories
          throw new NotImplementedException();
       }
 
-      public Task<T> GetStartpage<T>(Guid siteId) where T : PageBase
+      public async Task<T> GetStartpage<T>(Guid siteId) where T : PageBase
       {
-         throw new NotImplementedException();
+         return null;
       }
 
       public Task<IEnumerable<Guid>> Move<T>(T model, Guid? parentId, int sortOrder) where T : PageBase

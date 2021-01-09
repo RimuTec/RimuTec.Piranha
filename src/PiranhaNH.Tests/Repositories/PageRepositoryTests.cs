@@ -121,6 +121,15 @@ namespace RimuTec.PiranhaNH.Repositories
          // TODO: assert that no orphan comments, blocks, fields, etc. are left.
       }
 
+      [Test]
+      public async Task GetStartPage()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var startPage = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
+         Assert.IsNull(startPage);
+      }
+
       private async Task<Guid> MakeSite()
       {
          var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
