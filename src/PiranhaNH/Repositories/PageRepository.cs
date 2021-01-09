@@ -111,7 +111,18 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task<T> GetStartpage<T>(Guid siteId) where T : PageBase
       {
-         return null;
+         // var page = await GetQuery<T>()
+         //     .FirstOrDefaultAsync(p => p.SiteId == siteId && p.ParentId == null && p.SortOrder == 0)
+         //     .ConfigureAwait(false);
+         return await InTx(async session =>
+         {
+            var page = await session.Query<PageEntity>().FirstOrDefaultAsync(p => p.Site.Id == siteId).ConfigureAwait(false);
+            if (page != null)
+            {
+               return await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
+            }
+            return null;
+         }).ConfigureAwait(false);
       }
 
       public Task<IEnumerable<Guid>> Move<T>(T model, Guid? parentId, int sortOrder) where T : PageBase
@@ -500,7 +511,7 @@ namespace RimuTec.PiranhaNH.Repositories
                         field.SortOrder = newField.SortOrder;
                         field.CLRType = newField.CLRType;
                         field.Value = newField.Value;
-                        if(!isDraft)
+                        if (!isDraft)
                         {
                            await session.SaveOrUpdateAsync(field).ConfigureAwait(false);
                         }

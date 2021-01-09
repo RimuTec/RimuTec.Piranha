@@ -122,12 +122,25 @@ namespace RimuTec.PiranhaNH.Repositories
       }
 
       [Test]
-      public async Task GetStartPage()
+      public async Task GetStartPage_EmptySite()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var startPage = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
          Assert.IsNull(startPage);
+      }
+
+      [Test]
+      public async Task GetStartPage_SinglePage()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var aPage = await MakePage(siteId).ConfigureAwait(false);
+         aPage.ParentId = null;
+         var pageId = aPage.Id;
+         await pageRepository.Save(aPage).ConfigureAwait(false);
+         var startPage = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
+         Assert.AreEqual(pageId, startPage.Id);
       }
 
       private async Task<Guid> MakeSite()
