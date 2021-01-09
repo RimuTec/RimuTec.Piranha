@@ -118,7 +118,7 @@ namespace RimuTec.PiranhaNH.Repositories
          {
             var page = await session
                .Query<PageEntity>()
-               .FirstOrDefaultAsync(p => p.Site.Id == siteId && p.Parent == null)
+               .FirstOrDefaultAsync(p => p.Site.Id == siteId && p.Parent == null && p.SortOrder == 0)
                .ConfigureAwait(false);
             if (page != null)
             {
@@ -345,11 +345,13 @@ namespace RimuTec.PiranhaNH.Repositories
                   page.Parent = (model.ParentId != null && model.ParentId != Guid.Empty) ? await session.GetAsync<PageEntity>(model.ParentId).ConfigureAwait(false) : null;
                   // ### End RT changes #####
                   // Check if the page has been moved
-                  if (!isDraft && (page.Parent?.Id != model.ParentId || page.SortOrder != model.SortOrder))
+                  if (page.Parent != null && !isDraft && (page.Parent.Id != model.ParentId || page.SortOrder != model.SortOrder))
                   {
-                     var siteId = $"Site id = '{page.Site.Id}'";
-                     var isPageParentNull = $"Page parent is null '{page.Parent == null}'";
-                     var parentId = $"Parent id = '{page.Parent.Id}'";
+                     // ### Begin RT changes ###
+                     // var siteId = $"Site id = '{page.Site.Id}'";
+                     // var isPageParentNull = $"Page parent is null '{page.Parent == null}'";
+                     // var parentId = $"Parent id = '{page.Parent.Id}'";
+                     // ### End RT changes #####
                      var source = await session.Query<PageEntity>().Where(p => p.Site == page.Site && p.Parent == page.Parent && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
                      //var source = await _db.Pages.Where(p => p.SiteId == page.SiteId && p.ParentId == page.Parent.Id && p.Id != model.Id).ToListAsync().ConfigureAwait(false);
                      var dest = page.Parent.Id == model.ParentId ? source : await session.Query<PageEntity>().Where(p => p.Site.Id == model.SiteId && p.Parent != null && p.Parent.Id == model.ParentId).ToListAsync().ConfigureAwait(false);

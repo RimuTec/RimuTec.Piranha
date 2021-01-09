@@ -144,16 +144,31 @@ namespace RimuTec.PiranhaNH.Repositories
       }
 
       [Test]
-      public async Task GetStartPage_WithMultiplePages()
+      public async Task GetStartPage_BasedOnParent()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
-         firstPage.ParentId = null;
          var secondPage = await MakePage(siteId).ConfigureAwait(false);
          secondPage.ParentId = null;
          var secondPageId = secondPage.Id;
          firstPage.ParentId = secondPageId;
+         await pageRepository.Save(secondPage).ConfigureAwait(false);
+         await pageRepository.Save(firstPage).ConfigureAwait(false);
+         var retrieved = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
+         Assert.AreEqual(secondPageId, retrieved.Id);
+      }
+
+      [Test]
+      public async Task GetStartPage_BasedOnSortOrder()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         var secondPage = await MakePage(siteId).ConfigureAwait(false);
+         var secondPageId = secondPage.Id;
+         firstPage.SortOrder = 1;
+         secondPage.SortOrder = 0;
          await pageRepository.Save(secondPage).ConfigureAwait(false);
          await pageRepository.Save(firstPage).ConfigureAwait(false);
          var retrieved = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
