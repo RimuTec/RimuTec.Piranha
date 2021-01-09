@@ -66,9 +66,9 @@ namespace RimuTec.PiranhaNH.Repositories
          throw new NotImplementedException();
       }
 
-      public Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, int page, int pageSize)
+      public async Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, int page, int pageSize)
       {
-         throw new NotImplementedException();
+         return new List<Comment>();
       }
 
       public Task<IEnumerable<Guid>> GetAllDrafts(Guid siteId)

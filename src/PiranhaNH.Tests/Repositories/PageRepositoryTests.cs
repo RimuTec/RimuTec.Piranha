@@ -175,6 +175,29 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(secondPageId, retrieved.Id);
       }
 
+      [Test]
+      public async Task GetAllComments()
+      {
+         const int pageIndex = 0;
+         const int pageSize = 10;
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         var comments = await pageRepository.GetAllComments(firstPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
+         Assert.AreEqual(0, comments.Count());
+      }
+
+      [Test]
+      public async Task GetAllComments_RandomPageId()
+      {
+         const int pageIndex = 0;
+         const int pageSize = 10;
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var randomPageId = Guid.NewGuid();
+         var comments = await pageRepository.GetAllComments(randomPageId, false, pageIndex, pageSize).ConfigureAwait(false);
+         Assert.AreEqual(0, comments.Count());
+      }
+
       private async Task<Guid> MakeSite()
       {
          var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
