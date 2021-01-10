@@ -141,11 +141,11 @@ namespace RimuTec.PiranhaNH.Repositories
          return GetAllComments(pageId, false, true, page, pageSize);
       }
 
-      public async Task<T> GetById<T>(Guid id) where T : PageBase
+      public async Task<T> GetById<T>(Guid pageId) where T : PageBase
       {
          return await InTx(async (session) =>
          {
-            var page = await session.GetAsync<PageEntity>(id).ConfigureAwait(false);
+            var page = await session.GetAsync<PageEntity>(pageId).ConfigureAwait(false);
             if (page != null)
             {
                return await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
@@ -161,7 +161,11 @@ namespace RimuTec.PiranhaNH.Repositories
             var page = await session.Query<PageEntity>()
                 .FirstOrDefaultAsync(p => p.Site.Id == siteId && p.Slug == slug)
                 .ConfigureAwait(false);
-            return await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
+            if(page != null)
+            {
+               return await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
+            }
+            return null;
          }).ConfigureAwait(false);
       }
 

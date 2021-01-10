@@ -354,10 +354,33 @@ namespace RimuTec.PiranhaNH.Repositories
       {
          var siteId = await MakeSite().ConfigureAwait(false);
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
-         firstPage.Slug = $"slug-null-{RandomNumber.Next()}";
+         firstPage.Slug = $"slug-{RandomNumber.Next()}";
          await PageRepository.Save(firstPage).ConfigureAwait(false);
          var retrieved = await PageRepository.GetBySlug<MyPage>(firstPage.Slug, siteId).ConfigureAwait(false);
          Assert.AreEqual(firstPage.Id, retrieved.Id);
+      }
+
+      [Test]
+      public async Task GetBySlug_RandomSiteId()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         firstPage.Slug = $"slug-{RandomNumber.Next()}";
+         await PageRepository.Save(firstPage).ConfigureAwait(false);
+         var retrieved = await PageRepository.GetBySlug<MyPage>(firstPage.Slug, Guid.NewGuid()).ConfigureAwait(false);
+         Assert.IsNull(retrieved);
+      }
+
+      [Test]
+      public async Task GetBySlug_RandomSlug()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         firstPage.Slug = $"slug-{RandomNumber.Next()}";
+         await PageRepository.Save(firstPage).ConfigureAwait(false);
+         var anotherRandomSlug = $"slug-{RandomNumber.Next()}";
+         var retrieved = await PageRepository.GetBySlug<MyPage>(anotherRandomSlug, siteId).ConfigureAwait(false);
+         Assert.IsNull(retrieved);
       }
 
       private class CommentComparer : IEqualityComparer<Comment>
