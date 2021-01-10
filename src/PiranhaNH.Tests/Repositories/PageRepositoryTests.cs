@@ -201,20 +201,12 @@ namespace RimuTec.PiranhaNH.Repositories
       [Test]
       public async Task GetAllComments_PageWithOneComment()
       {
-         const int with10Words = 10;
          const int pageIndex = 0;
          const int pageSize = 10;
-         var firstName = Faker.Name.FirstName();
-         var lastName = Faker.Name.LastName();
          var siteId = await MakeSite().ConfigureAwait(false);
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
-         var comment = new Comment
-         {
-            Author = $"{firstName} {lastName}",
-            Email = Faker.Internet.Email(firstName),
-            Body = Faker.Lorem.Sentence(with10Words)
-         };
+         var comment = MakeComment();
          await pageRepository.SaveComment(firstPage.Id, comment).ConfigureAwait(false);
          var comments = await pageRepository.GetAllComments(firstPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(1, comments.Count());
@@ -223,30 +215,17 @@ namespace RimuTec.PiranhaNH.Repositories
       [Test]
       public async Task GetAllComments_2PagesWithComment()
       {
-         const int with10Words = 10;
          const int pageIndex = 0;
          const int pageSize = 10;
-         var firstName = Faker.Name.FirstName();
-         var lastName = Faker.Name.LastName();
          var siteId = await MakeSite().ConfigureAwait(false);
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
 
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
-         var firstComment = new Comment
-         {
-            Author = $"{firstName} {lastName}",
-            Email = Faker.Internet.Email(firstName),
-            Body = Faker.Lorem.Sentence(with10Words)
-         };
+         var firstComment = MakeComment();
          await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
 
          var secondPage = await MakePage(siteId).ConfigureAwait(false);
-         var secondComment = new Comment
-         {
-            Author = $"{firstName} {lastName}",
-            Email = Faker.Internet.Email(firstName),
-            Body = Faker.Lorem.Sentence(with10Words)
-         };
+         var secondComment = MakeComment();
          await pageRepository.SaveComment(secondPage.Id, secondComment).ConfigureAwait(false);
 
          var comments = await pageRepository.GetAllComments(secondPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
@@ -256,31 +235,18 @@ namespace RimuTec.PiranhaNH.Repositories
       [Test]
       public async Task GetAllComments_ApprovedOnly()
       {
-         const int with10Words = 10;
          const int pageIndex = 0;
          const int pageSize = 10;
-         var firstName = Faker.Name.FirstName();
-         var lastName = Faker.Name.LastName();
          var siteId = await MakeSite().ConfigureAwait(false);
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
 
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
-         var firstComment = new Comment
-         {
-            Author = $"{firstName} {lastName}",
-            Email = Faker.Internet.Email(firstName),
-            Body = Faker.Lorem.Sentence(with10Words),
-            IsApproved = true
-         };
+         var firstComment = MakeComment();
+         firstComment.IsApproved = true;
          await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
 
-         var secondComment = new Comment
-         {
-            Author = $"{firstName} {lastName}",
-            Email = Faker.Internet.Email(firstName),
-            Body = Faker.Lorem.Sentence(with10Words),
-            IsApproved = false
-         };
+         var secondComment = MakeComment();
+         secondComment.IsApproved = false;
          await pageRepository.SaveComment(firstPage.Id, secondComment).ConfigureAwait(false);
 
          var comments = await pageRepository.GetAllComments(firstPage.Id, true, pageIndex, pageSize).ConfigureAwait(false);
@@ -290,38 +256,36 @@ namespace RimuTec.PiranhaNH.Repositories
       [Test]
       public async Task GetAllComments_ForAllPages()
       {
-         const int with10Words = 10;
          const int pageIndex = 0;
          const int pageSize = 10;
-         var firstName = Faker.Name.FirstName();
-         var lastName = Faker.Name.LastName();
          var siteId = await MakeSite().ConfigureAwait(false);
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
 
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
-         var firstComment = new Comment
+         var firstComment = MakeComment();
+         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+
+         var secondPage = await MakePage(siteId).ConfigureAwait(false);
+         var secondComment = MakeComment();
+         await pageRepository.SaveComment(secondPage.Id, secondComment).ConfigureAwait(false);
+
+         var comments = await pageRepository.GetAllComments(null, false, pageIndex, pageSize).ConfigureAwait(false);
+         Assert.AreEqual(1, comments.Count(p => p.Author == firstComment.Author), $"Author is '{firstComment.Author}'");
+         Assert.AreEqual(1, comments.Count(p => p.Author == secondComment.Author), $"Author is '{secondComment.Author}'");
+      }
+
+      private static Comment MakeComment()
+      {
+         const int with10Words = 10;
+         var firstName = Faker.Name.FirstName();
+         var lastName = Faker.Name.LastName();
+         return new Comment
          {
             Author = $"{firstName} {lastName}",
             Email = Faker.Internet.Email(firstName),
             Body = Faker.Lorem.Sentence(with10Words),
             IsApproved = true
          };
-         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
-
-         firstName = Faker.Name.FirstName();
-         lastName = Faker.Name.LastName();
-         var secondPage = await MakePage(siteId).ConfigureAwait(false);
-         var secondComment = new Comment
-         {
-            Author = $"{firstName} {lastName}",
-            Email = Faker.Internet.Email(firstName),
-            Body = Faker.Lorem.Sentence(with10Words)
-         };
-         await pageRepository.SaveComment(secondPage.Id, secondComment).ConfigureAwait(false);
-
-         var comments = await pageRepository.GetAllComments(null, false, pageIndex, pageSize).ConfigureAwait(false);
-         Assert.AreEqual(1, comments.Count(p => p.Author == firstComment.Author), $"Author is '{firstComment.Author}'");
-         Assert.AreEqual(1, comments.Count(p => p.Author == secondComment.Author), $"Author is '{secondComment.Author}'");
       }
 
       private async Task<Guid> MakeSite()
