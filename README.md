@@ -6,7 +6,7 @@ The first module is RimuTec.PiranhaNH which uses NHibernate (NH) instead of Enti
 
 # Approach
 
-The first step is to implement 10 repositories. Here is a list included where we believe that we have an initial implementation:
+The first step is to implement 10 repository classes that Piranha.Core uses. Here is a list of them along with an indication which ones have their initial implementation::
 
 - AliasRepository ✔️
 - ArchiveRepository ❌
