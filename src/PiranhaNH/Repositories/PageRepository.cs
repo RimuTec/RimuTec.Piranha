@@ -71,8 +71,13 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async session =>
          {
             var comments = new List<Comment>();
-            var entities = await session
-               .Query<PageCommentEntity>()
+            var query = session.Query<PageCommentEntity>();
+
+            if(onlyApproved) {
+               query = query.Where(c => c.IsApproved);
+            }
+
+            var entities = await query
                .Where(c => c.Page.Id == pageId)
                .ToListAsync()
                .ConfigureAwait(false);
@@ -84,7 +89,8 @@ namespace RimuTec.PiranhaNH.Repositories
                   Created = e.Created,
                   Author = e.Author,
                   Email = e.Email,
-                  Body = e.Body
+                  Body = e.Body,
+                  IsApproved = e.IsApproved
                };
             }));
             return comments;
@@ -167,7 +173,8 @@ namespace RimuTec.PiranhaNH.Repositories
                Page = await session.GetAsync<PageEntity>(pageId).ConfigureAwait(false),
                Author = model.Author,
                Email = model.Email,
-               Body = model.Body
+               Body = model.Body,
+               IsApproved = model.IsApproved
             };
             await session.SaveAsync(pageComment).ConfigureAwait(false);
          }).ConfigureAwait(false);
