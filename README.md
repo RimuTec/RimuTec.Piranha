@@ -8,17 +8,19 @@ The first module is RimuTec.PiranhaNH which uses NHibernate (NH) instead of Enti
 
 The first step is to implement 10 repositories. Here is a list included where we believe that we have an initial implementation:
 
-- [x] AliasRepository
-- [ ] ArchiveRepository
-- [ ] MediaRepository
-- [ ] PageRepository
-- [x] PageTypeRepository
-- [x] ParamRepository
-- [ ] PostRepository
-- [x] PostTypeRepository
-- [ ] SiteRepository; missing:
-  - [ ] GetSiteMap()
-- [x] SiteTypeRepository
+- AliasRepository ✔️
+- ArchiveRepository ❌
+- MediaRepository ❌
+- PageRepository 🔧
+- PageTypeRepository ✔️
+- ParamRepository ✔️
+- PostRepository ❌
+- PostTypeRepository ✔️
+- SiteRepository ✔️
+  - GetSiteMap() ❌
+- SiteTypeRepository ✔️
+
+✔️ = complete, 🔧 = in progress, ❌ = not available yet
 
 We are using a test-driven approach. That means we are using tests to drive the implementation of each repository.
 
