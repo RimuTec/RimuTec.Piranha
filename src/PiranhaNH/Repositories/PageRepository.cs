@@ -78,8 +78,16 @@ namespace RimuTec.PiranhaNH.Repositories
                query = query.Where(c => c.Page.Id == pageId);
             }
 
-            if(onlyApproved) {
+            if (onlyApproved)
+            {
                query = query.Where(c => c.IsApproved);
+            }
+
+            if (pageSize > 0)
+            {
+               query = query
+                  .Skip(page * pageSize)
+                  .Take(pageSize);
             }
 
             var entities = await query

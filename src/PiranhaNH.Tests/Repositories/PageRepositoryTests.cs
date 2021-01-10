@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
@@ -257,7 +259,7 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetAllComments_ForAllPages()
       {
          const int pageIndex = 0;
-         const int pageSize = 10;
+         const int pageSize = int.MaxValue;
          var siteId = await MakeSite().ConfigureAwait(false);
          var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
 
@@ -272,6 +274,38 @@ namespace RimuTec.PiranhaNH.Repositories
          var comments = await pageRepository.GetAllComments(null, false, pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(1, comments.Count(p => p.Author == firstComment.Author), $"Author is '{firstComment.Author}'");
          Assert.AreEqual(1, comments.Count(p => p.Author == secondComment.Author), $"Author is '{secondComment.Author}'");
+      }
+
+      [Test]
+      public async Task GetAllComments_WithPaging()
+      {
+         const int pageSize = 5;
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         for(var i = 0; i < 10; i++)
+         {
+            var firstComment = MakeComment();
+            await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         }
+         var firstPageWithComments = await pageRepository.GetAllComments(firstPage.Id, false, 0, pageSize).ConfigureAwait(false);
+         var secondPageWithComments = await pageRepository.GetAllComments(firstPage.Id, false, 1, pageSize).ConfigureAwait(false);
+         Assert.AreEqual(5, firstPageWithComments.Count());
+         Assert.AreEqual(5, secondPageWithComments.Count());
+         Assert.AreEqual(0, firstPageWithComments.Intersect(secondPageWithComments, new CommentComparer()).Count());
+      }
+
+      private class CommentComparer : IEqualityComparer<Comment>
+      {
+         public bool Equals(Comment x, Comment y)
+         {
+            return x.Id == y.Id;
+         }
+
+         public int GetHashCode([DisallowNull] Comment obj)
+         {
+            return obj.Id.GetHashCode();
+         }
       }
 
       private static Comment MakeComment()
