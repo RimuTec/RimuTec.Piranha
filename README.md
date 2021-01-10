@@ -17,7 +17,6 @@ The first step is to implement 10 repository classes that Piranha.Core uses. Her
 - PostRepository ❌
 - PostTypeRepository ✔️
 - SiteRepository ✔️
-  - GetSiteMap() ❌
 - SiteTypeRepository ✔️
 
 ✔️ = complete, 🔧 = in progress, ❌ = to do

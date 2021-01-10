@@ -174,24 +174,54 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task<Sitemap> GetSitemap(Guid id, bool onlyPublished = true)
+      public async Task<Sitemap> GetSitemap(Guid siteId, bool onlyPublished = true)
       {
-            // var pages = await _db.Pages
-            //     .AsNoTracking()
-            //     .Include(p => p.Permissions)
-            //     .Where(p => p.SiteId == id)
-            //     .OrderBy(p => p.ParentId)
-            //     .ThenBy(p => p.SortOrder)
-            //     .ToListAsync()
-            //     .ConfigureAwait(false);
-
-            // if (onlyPublished)
-            // {
-            //     pages = pages.Where(p => p.Published.HasValue && p.Published.Value <= DateTime.Now).ToList();
-            // }
-            // return Sort(pages);
-         throw new NotImplementedException();
+         return await InTx(async session =>
+         {
+            var query = session.Query<PageEntity>()
+               .Where(p => p.Site.Id == siteId);
+            if(onlyPublished)
+            {
+               query = query.Where(p => p.Published <= DateTime.Now);
+            }
+            var pages = await query
+               .OrderBy(p => p.Parent)
+               .ThenBy(p => p.SortOrder)
+               .ToListAsync()
+               .ConfigureAwait(false)
+               ;
+            return Sort(pages);
+         }).ConfigureAwait(false);
       }
+
+        /// <summary>
+        /// Sorts the items.
+        /// </summary>
+        /// <param name="pages">The full page list</param>
+        /// <param name="parent">The current parent id</param>
+        /// <param name="level">The level in structure</param>
+        /// <returns>The sitemap</returns>
+        private Sitemap Sort(IEnumerable<PageEntity> pages, PageEntity parent = null, int level = 0)
+        {
+            var result = new Sitemap();
+
+            foreach (var page in pages.Where(p => p.Parent == parent).OrderBy(p => p.SortOrder))
+            {
+                var item = Module.Mapper.Map<PageEntity, SitemapItem>(page);
+
+                if (!string.IsNullOrEmpty(page.RedirectUrl))
+                {
+                    item.Permalink = page.RedirectUrl;
+                }
+
+                item.Level = level;
+                item.PageTypeName = App.PageTypes.First(t => t.Id == page.PageType.Id).Title;
+                item.Items = Sort(pages, page, level + 1);
+
+                result.Add(item);
+            }
+            return result;
+        }
 
       public async Task Save(Site model)
       {

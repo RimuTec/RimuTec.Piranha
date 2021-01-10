@@ -217,24 +217,80 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual("Parameter 'content' cannot be null. [Location 201226-2334] (Parameter 'content')", ex.Message);
       }
 
-      // Need PageRepository for the following test to work
-      // [Test]
-      // public async Task GetSitemap()
-      // {
-      //    var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
-      //    var internalId = Guid.NewGuid().ToString("N");
-      //    var site = new Site
-      //    {
-      //       Description = $"Site description {internalId}",
-      //       InternalId = internalId,
-      //       Title = $"Title {internalId}",
-      //       IsDefault = true,
-      //       SiteTypeId = "MySiteContent"
-      //    };
-      //    await repository.Save(site).ConfigureAwait(false);
-      //    var page = new Page {
-      //    }
-      // }
+      [Test]
+      public async Task SaveContent_PublishedOnly()
+      {
+         var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var internalId = Guid.NewGuid().ToString("N");
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var ex = Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.SaveContent<MySiteContent>(siteId, null).ConfigureAwait(false));
+         Assert.AreEqual("Parameter 'content' cannot be null. [Location 201226-2334] (Parameter 'content')", ex.Message);
+      }
+
+      [Test]
+      public async Task GetSitemap()
+      {
+         var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var siteId = await MakeSite().ConfigureAwait(false);
+         _ = await MakePage(siteId).ConfigureAwait(false);
+         var anotherPage = await MakePage(siteId).ConfigureAwait(false);
+         anotherPage.Published = null;
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         await pageRepository.Save(anotherPage).ConfigureAwait(false);
+         var siteMap = await repository.GetSitemap(siteId, true).ConfigureAwait(false);
+         Assert.AreEqual(1, siteMap.Count);
+         var siteMapIncludingNonPublished = await repository.GetSitemap(siteId, false).ConfigureAwait(false);
+         Assert.AreEqual(2, siteMapIncludingNonPublished.Count);
+      }
+
+      [Test]
+      public async Task GetSitemap_RandomId()
+      {
+         var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var siteMap = await repository.GetSitemap(Guid.NewGuid()).ConfigureAwait(false);
+         Assert.AreEqual(0, siteMap.Count);
+      }
+
+      [Test]
+      public async Task GetSitemap_NoPages()
+      {
+         var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var siteMap = await repository.GetSitemap(siteId, false).ConfigureAwait(false);
+         Assert.AreEqual(0, siteMap.Count);
+      }
+
+      private async Task<Guid> MakeSite()
+      {
+         var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var internalId = Guid.NewGuid().ToString("N");
+         var site = new Site
+         {
+            Description = $"Site description {internalId}",
+            InternalId = internalId,
+            Title = $"Title {internalId}",
+            IsDefault = true,
+            SiteTypeId = "MySiteContent",
+            Hostnames = "mysite.com"
+         };
+         await repository.Save(site).ConfigureAwait(false);
+         return site.Id;
+      }
+
+      private async Task<MyPage> MakePage(Guid siteId)
+      {
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         MyPage page;
+         using var api = CreateApi();
+         page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now;
+         await pageRepository.Save(page).ConfigureAwait(false);
+         return page;
+      }
 
       [PageType(Title = "PageType")]
       public class MyPage : Page<MyPage>
