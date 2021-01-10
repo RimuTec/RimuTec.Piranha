@@ -399,13 +399,13 @@ namespace RimuTec.PiranhaNH.Repositories
       private static Comment MakeComment()
       {
          const int with10Words = 10;
-         var firstName = Faker.Name.FirstName();
-         var lastName = Faker.Name.LastName();
+         var firstName = Name.FirstName();
+         var lastName = Name.LastName();
          return new Comment
          {
             Author = $"{firstName} {lastName}",
-            Email = Faker.Internet.Email(firstName),
-            Body = Faker.Lorem.Sentence(with10Words),
+            Email = Internet.Email(firstName),
+            Body = Lorem.Sentence(with10Words),
             IsApproved = true
          };
       }
@@ -446,11 +446,11 @@ namespace RimuTec.PiranhaNH.Repositories
          var page = await MakePage(siteId).ConfigureAwait(false);
          page.Blocks.Add(new Piranha.Extend.Blocks.TextBlock
          {
-            Body = "Sollicitudin Aenean"
+            Body = Lorem.Sentence(3)
          });
          page.Blocks.Add(new Piranha.Extend.Blocks.TextBlock
          {
-            Body = "Ipsum Elit"
+            Body = Lorem.Sentence(3)
          });
          await PageRepository.Save(page).ConfigureAwait(false);
          return page;
