@@ -11,6 +11,7 @@ using Piranha.Extend.Fields;
 using Piranha.Models;
 using Piranha.Repositories;
 using Piranha.Services;
+using RimuTec.Faker;
 using RimuTec.PiranhaNH.DataAccess;
 using RimuTec.PiranhaNH.Services;
 
@@ -346,6 +347,17 @@ namespace RimuTec.PiranhaNH.Repositories
          const int pageSize = 10;
          var comments = await PageRepository.GetAllPendingComments(Guid.NewGuid(), pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(0, comments.Count());
+      }
+
+      [Test]
+      public async Task GetBySlug()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         firstPage.Slug = $"slug-null-{RandomNumber.Next()}";
+         await PageRepository.Save(firstPage).ConfigureAwait(false);
+         var retrieved = await PageRepository.GetBySlug<MyPage>(firstPage.Slug, siteId).ConfigureAwait(false);
+         Assert.AreEqual(firstPage.Id, retrieved.Id);
       }
 
       private class CommentComparer : IEqualityComparer<Comment>
