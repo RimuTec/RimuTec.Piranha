@@ -20,7 +20,7 @@ The first step is to implement 10 repositories. Here is a list included where we
   - GetSiteMap() ❌
 - SiteTypeRepository ✔️
 
-✔️ = complete, 🔧 = in progress, ❌ = not available yet
+✔️ = complete, 🔧 = in progress, ❌ = to do
 
 We are using a test-driven approach. That means we are using tests to drive the implementation of each repository.
 
