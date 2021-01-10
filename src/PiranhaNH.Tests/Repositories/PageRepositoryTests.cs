@@ -295,6 +295,35 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(0, firstPageWithComments.Intersect(secondPageWithComments, new CommentComparer()).Count());
       }
 
+      [Test]
+      public async Task GetCommentById()
+      {
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         var firstComment = MakeComment();
+         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         var comment = await pageRepository.GetCommentById(firstComment.Id).ConfigureAwait(false);
+         Assert.AreEqual(firstComment.Body, comment.Body);
+         Assert.AreEqual(firstComment.Id, comment.Id);
+      }
+
+      [Test]
+      public void GetCommentById_GuidEmpty()
+      {
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var ex = Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => pageRepository.GetCommentById(Guid.Empty));
+         Assert.AreEqual("Must not be Guid.Empty [Code 210110-1823] (Parameter 'commentId')", ex.Message);
+      }
+
+      [Test]
+      public async Task GetCommentById_RandomId()
+      {
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var comment = await pageRepository.GetCommentById(Guid.NewGuid()).ConfigureAwait(false);
+         Assert.IsNull(comment);
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)

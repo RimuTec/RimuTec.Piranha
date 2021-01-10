@@ -137,9 +137,32 @@ namespace RimuTec.PiranhaNH.Repositories
          throw new NotImplementedException();
       }
 
-      public Task<Comment> GetCommentById(Guid id)
+      public async Task<Comment> GetCommentById(Guid commentId)
       {
-         throw new NotImplementedException();
+         if(commentId == Guid.Empty)
+         {
+            throw new ArgumentOutOfRangeException(nameof(commentId), "Must not be Guid.Empty [Code 210110-1823]");
+         }
+         return await InTx(async session =>
+         {
+            var comment = await session.GetAsync<PageCommentEntity>(commentId).ConfigureAwait(false);
+            if(comment != null)
+            {
+               return new Comment
+               {
+                  Id = comment.Id,
+                  ContentId = comment.Page.Id,
+                  UserId = comment.UserId,
+                  Author = comment.Author,
+                  Email = comment.Email,
+                  Url = comment.Url,
+                  IsApproved = comment.IsApproved,
+                  Body = comment.Body,
+                  Created = comment.Created
+               };
+            }
+            return null;
+         }).ConfigureAwait(false);
       }
 
       public Task<T> GetDraftById<T>(Guid id) where T : PageBase
@@ -180,15 +203,17 @@ namespace RimuTec.PiranhaNH.Repositories
       {
          await InTx(async session =>
          {
+            PageEntity pageEntity = await session.GetAsync<PageEntity>(pageId).ConfigureAwait(false);
             var pageComment = new PageCommentEntity
             {
-               Page = await session.GetAsync<PageEntity>(pageId).ConfigureAwait(false),
+               Page = pageEntity,
                Author = model.Author,
                Email = model.Email,
                Body = model.Body,
                IsApproved = model.IsApproved
             };
             await session.SaveAsync(pageComment).ConfigureAwait(false);
+            model.Id = pageComment.Id;
          }).ConfigureAwait(false);
       }
 
