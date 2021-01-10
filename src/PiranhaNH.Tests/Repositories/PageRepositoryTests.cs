@@ -217,7 +217,7 @@ namespace RimuTec.PiranhaNH.Repositories
          };
          await pageRepository.SaveComment(firstPage.Id, comment).ConfigureAwait(false);
          var comments = await pageRepository.GetAllComments(firstPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
-         Assert.AreEqual(0, comments.Count());
+         Assert.AreEqual(1, comments.Count());
       }
 
       private async Task<Guid> MakeSite()

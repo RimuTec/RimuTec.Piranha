@@ -68,7 +68,27 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, int page, int pageSize)
       {
-         return new List<Comment>();
+         return await InTx(async session =>
+         {
+            var comments = new List<Comment>();
+            var entities = await session
+               .Query<PageCommentEntity>()
+               .Where(c => c.Page.Id == pageId)
+               .ToListAsync()
+               .ConfigureAwait(false);
+            comments.AddRange(entities.Select(e =>
+            {
+               return new Comment
+               {
+                  Id = e.Id,
+                  Created = e.Created,
+                  Author = e.Author,
+                  Email = e.Email,
+                  Body = e.Body
+               };
+            }));
+            return comments;
+         }).ConfigureAwait(false);
       }
 
       public Task<IEnumerable<Guid>> GetAllDrafts(Guid siteId)
