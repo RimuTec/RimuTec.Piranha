@@ -9,6 +9,7 @@ using Piranha.AttributeBuilder;
 using Piranha.Extend;
 using Piranha.Extend.Fields;
 using Piranha.Models;
+using Piranha.Repositories;
 using Piranha.Services;
 using RimuTec.PiranhaNH.DataAccess;
 using RimuTec.PiranhaNH.Services;
@@ -21,12 +22,13 @@ namespace RimuTec.PiranhaNH.Repositories
       public PageRepositoryTests()
       {
          SessionFactory = Database.CreateSessionFactory();
+         _contentFactory = new ContentFactory(_services);
+         PageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
       }
 
       [OneTimeSetUp]
       public void FixtureSetUp()
       {
-         _contentFactory = new ContentFactory(_services);
          Initialize();
       }
 
@@ -34,8 +36,7 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetAll_ExistingSite()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
-         var pageIds = await pageRepository.GetAll(siteId).ConfigureAwait(false);
+         var pageIds = await PageRepository.GetAll(siteId).ConfigureAwait(false);
          Assert.AreEqual(0, pageIds.Count());
       }
 
@@ -43,8 +44,7 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetAll_NonExistingSite()
       {
          var someRandomId = Guid.NewGuid();
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
-         var pageIds = await pageRepository.GetAll(someRandomId).ConfigureAwait(false);
+         var pageIds = await PageRepository.GetAll(someRandomId).ConfigureAwait(false);
          Assert.AreEqual(0, pageIds.Count());
       }
 
@@ -52,11 +52,10 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetAll_WithOnePage()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          using var api = CreateApi();
          MyPage page = await MakePage(siteId).ConfigureAwait(false);
          var pageId = page.Id;
-         var pageIds = await pageRepository.GetAll(siteId).ConfigureAwait(false);
+         var pageIds = await PageRepository.GetAll(siteId).ConfigureAwait(false);
          Assert.AreEqual(1, pageIds.Count());
          Assert.AreEqual(1, pageIds.Count(id => id == pageId));
       }
@@ -65,11 +64,10 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetById()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          MyPage page = await MakePage(siteId).ConfigureAwait(false);
          var pageId = page.Id;
          Assert.AreNotEqual(Guid.Empty, pageId);
-         var retrieved = await pageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
+         var retrieved = await PageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
          Assert.AreEqual(pageId, retrieved.Id);
          Assert.AreEqual(siteId, retrieved.SiteId);
          Assert.AreEqual("Startpage", retrieved.Title);
@@ -80,8 +78,7 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetById_RandomIdReturnsNull()
       {
          var pageId = Guid.NewGuid();
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
-         var retrieved = await pageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
+         var retrieved = await PageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
          Assert.IsNull(retrieved);
       }
 
@@ -89,10 +86,9 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetById_PageWithBlocks()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          MyPage page = await MakePageWithBlocks(siteId).ConfigureAwait(false);
          var pageId = page.Id;
-         var retrieved = await pageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
+         var retrieved = await PageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
          Assert.AreEqual(2, retrieved.Blocks.Count);
       }
 
@@ -100,13 +96,12 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task Save_AfterChange()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          MyPage page = await MakePage(siteId).ConfigureAwait(false);
          var pageId = page.Id;
          string newText = $"Welcome at {DateTime.Now}";
          page.Text = newText;
-         await pageRepository.Save(page).ConfigureAwait(false);
-         var retrieved = await pageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
+         await PageRepository.Save(page).ConfigureAwait(false);
+         var retrieved = await PageRepository.GetById<MyPage>(pageId).ConfigureAwait(false);
          Assert.AreEqual(newText, retrieved.Text.Value);
       }
 
@@ -114,11 +109,10 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task Delete()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          MyPage page = await MakePage(siteId).ConfigureAwait(false);
          var pageId = page.Id;
-         await pageRepository.Delete(pageId).ConfigureAwait(false);
-         var pageIds = await pageRepository.GetAll(siteId).ConfigureAwait(false);
+         await PageRepository.Delete(pageId).ConfigureAwait(false);
+         var pageIds = await PageRepository.GetAll(siteId).ConfigureAwait(false);
          Assert.AreEqual(0, pageIds.Count());
          // TODO: assert that no orphan comments, blocks, fields, etc. are left.
       }
@@ -127,8 +121,7 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetStartPage_EmptySite()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
-         var startPage = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
+         var startPage = await PageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
          Assert.IsNull(startPage);
       }
 
@@ -136,12 +129,11 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetStartPage_SinglePage()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var aPage = await MakePage(siteId).ConfigureAwait(false);
          aPage.ParentId = null;
          var pageId = aPage.Id;
-         await pageRepository.Save(aPage).ConfigureAwait(false);
-         var startPage = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
+         await PageRepository.Save(aPage).ConfigureAwait(false);
+         var startPage = await PageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
          Assert.AreEqual(pageId, startPage.Id);
       }
 
@@ -149,15 +141,14 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetStartPage_BasedOnParent()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          var secondPage = await MakePage(siteId).ConfigureAwait(false);
          secondPage.ParentId = null;
          var secondPageId = secondPage.Id;
          firstPage.ParentId = secondPageId;
-         await pageRepository.Save(secondPage).ConfigureAwait(false);
-         await pageRepository.Save(firstPage).ConfigureAwait(false);
-         var retrieved = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
+         await PageRepository.Save(secondPage).ConfigureAwait(false);
+         await PageRepository.Save(firstPage).ConfigureAwait(false);
+         var retrieved = await PageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
          Assert.AreEqual(secondPageId, retrieved.Id);
       }
 
@@ -165,15 +156,14 @@ namespace RimuTec.PiranhaNH.Repositories
       public async Task GetStartPage_BasedOnSortOrder()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          var secondPage = await MakePage(siteId).ConfigureAwait(false);
          var secondPageId = secondPage.Id;
          firstPage.SortOrder = 1;
          secondPage.SortOrder = 0;
-         await pageRepository.Save(secondPage).ConfigureAwait(false);
-         await pageRepository.Save(firstPage).ConfigureAwait(false);
-         var retrieved = await pageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
+         await PageRepository.Save(secondPage).ConfigureAwait(false);
+         await PageRepository.Save(firstPage).ConfigureAwait(false);
+         var retrieved = await PageRepository.GetStartpage<DynamicPage>(siteId).ConfigureAwait(false);
          Assert.AreEqual(secondPageId, retrieved.Id);
       }
 
@@ -183,9 +173,8 @@ namespace RimuTec.PiranhaNH.Repositories
          const int pageIndex = 0;
          const int pageSize = 10;
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
-         var comments = await pageRepository.GetAllComments(firstPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
+         var comments = await PageRepository.GetAllComments(firstPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(0, comments.Count());
       }
 
@@ -194,9 +183,8 @@ namespace RimuTec.PiranhaNH.Repositories
       {
          const int pageIndex = 0;
          const int pageSize = 10;
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var randomPageId = Guid.NewGuid();
-         var comments = await pageRepository.GetAllComments(randomPageId, false, pageIndex, pageSize).ConfigureAwait(false);
+         var comments = await PageRepository.GetAllComments(randomPageId, false, pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(0, comments.Count());
       }
 
@@ -206,11 +194,10 @@ namespace RimuTec.PiranhaNH.Repositories
          const int pageIndex = 0;
          const int pageSize = 10;
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          var comment = MakeComment();
-         await pageRepository.SaveComment(firstPage.Id, comment).ConfigureAwait(false);
-         var comments = await pageRepository.GetAllComments(firstPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
+         await PageRepository.SaveComment(firstPage.Id, comment).ConfigureAwait(false);
+         var comments = await PageRepository.GetAllComments(firstPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(1, comments.Count());
       }
 
@@ -220,17 +207,16 @@ namespace RimuTec.PiranhaNH.Repositories
          const int pageIndex = 0;
          const int pageSize = 10;
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
 
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          var firstComment = MakeComment();
-         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         await PageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
 
          var secondPage = await MakePage(siteId).ConfigureAwait(false);
          var secondComment = MakeComment();
-         await pageRepository.SaveComment(secondPage.Id, secondComment).ConfigureAwait(false);
+         await PageRepository.SaveComment(secondPage.Id, secondComment).ConfigureAwait(false);
 
-         var comments = await pageRepository.GetAllComments(secondPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
+         var comments = await PageRepository.GetAllComments(secondPage.Id, false, pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(1, comments.Count());
       }
 
@@ -240,18 +226,17 @@ namespace RimuTec.PiranhaNH.Repositories
          const int pageIndex = 0;
          const int pageSize = 10;
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
 
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          var firstComment = MakeComment();
          firstComment.IsApproved = true;
-         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         await PageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
 
          var secondComment = MakeComment();
          secondComment.IsApproved = false;
-         await pageRepository.SaveComment(firstPage.Id, secondComment).ConfigureAwait(false);
+         await PageRepository.SaveComment(firstPage.Id, secondComment).ConfigureAwait(false);
 
-         var comments = await pageRepository.GetAllComments(firstPage.Id, true, pageIndex, pageSize).ConfigureAwait(false);
+         var comments = await PageRepository.GetAllComments(firstPage.Id, true, pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(1, comments.Count());
       }
 
@@ -261,17 +246,16 @@ namespace RimuTec.PiranhaNH.Repositories
          const int pageIndex = 0;
          const int pageSize = int.MaxValue;
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
 
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          var firstComment = MakeComment();
-         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         await PageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
 
          var secondPage = await MakePage(siteId).ConfigureAwait(false);
          var secondComment = MakeComment();
-         await pageRepository.SaveComment(secondPage.Id, secondComment).ConfigureAwait(false);
+         await PageRepository.SaveComment(secondPage.Id, secondComment).ConfigureAwait(false);
 
-         var comments = await pageRepository.GetAllComments(null, false, pageIndex, pageSize).ConfigureAwait(false);
+         var comments = await PageRepository.GetAllComments(null, false, pageIndex, pageSize).ConfigureAwait(false);
          Assert.AreEqual(1, comments.Count(p => p.Author == firstComment.Author), $"Author is '{firstComment.Author}'");
          Assert.AreEqual(1, comments.Count(p => p.Author == secondComment.Author), $"Author is '{secondComment.Author}'");
       }
@@ -281,15 +265,14 @@ namespace RimuTec.PiranhaNH.Repositories
       {
          const int pageSize = 5;
          var siteId = await MakeSite().ConfigureAwait(false);
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          for(var i = 0; i < 10; i++)
          {
             var firstComment = MakeComment();
-            await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+            await PageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
          }
-         var firstPageWithComments = await pageRepository.GetAllComments(firstPage.Id, false, 0, pageSize).ConfigureAwait(false);
-         var secondPageWithComments = await pageRepository.GetAllComments(firstPage.Id, false, 1, pageSize).ConfigureAwait(false);
+         var firstPageWithComments = await PageRepository.GetAllComments(firstPage.Id, false, 0, pageSize).ConfigureAwait(false);
+         var secondPageWithComments = await PageRepository.GetAllComments(firstPage.Id, false, 1, pageSize).ConfigureAwait(false);
          Assert.AreEqual(5, firstPageWithComments.Count());
          Assert.AreEqual(5, secondPageWithComments.Count());
          Assert.AreEqual(0, firstPageWithComments.Intersect(secondPageWithComments, new CommentComparer()).Count());
@@ -298,12 +281,11 @@ namespace RimuTec.PiranhaNH.Repositories
       [Test]
       public async Task GetCommentById()
       {
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var siteId = await MakeSite().ConfigureAwait(false);
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          var firstComment = MakeComment();
-         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
-         var comment = await pageRepository.GetCommentById(firstComment.Id).ConfigureAwait(false);
+         await PageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         var comment = await PageRepository.GetCommentById(firstComment.Id).ConfigureAwait(false);
          Assert.AreEqual(firstComment.Body, comment.Body);
          Assert.AreEqual(firstComment.Id, comment.Id);
       }
@@ -311,37 +293,33 @@ namespace RimuTec.PiranhaNH.Repositories
       [Test]
       public void GetCommentById_GuidEmpty()
       {
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
-         var ex = Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => pageRepository.GetCommentById(Guid.Empty));
+         var ex = Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => PageRepository.GetCommentById(Guid.Empty));
          Assert.AreEqual("Must not be Guid.Empty [Code 210110-1823] (Parameter 'commentId')", ex.Message);
       }
 
       [Test]
       public async Task GetCommentById_RandomId()
       {
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
-         var comment = await pageRepository.GetCommentById(Guid.NewGuid()).ConfigureAwait(false);
+         var comment = await PageRepository.GetCommentById(Guid.NewGuid()).ConfigureAwait(false);
          Assert.IsNull(comment);
       }
 
       [Test]
       public async Task DeleteComment()
       {
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var siteId = await MakeSite().ConfigureAwait(false);
          var firstPage = await MakePage(siteId).ConfigureAwait(false);
          var firstComment = MakeComment();
-         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
-         await pageRepository.DeleteComment(firstComment.Id).ConfigureAwait(false);
-         var comment = await pageRepository.GetCommentById(firstComment.Id).ConfigureAwait(false);
+         await PageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         await PageRepository.DeleteComment(firstComment.Id).ConfigureAwait(false);
+         var comment = await PageRepository.GetCommentById(firstComment.Id).ConfigureAwait(false);
          Assert.IsNull(comment);
       }
 
       [Test]
       public async Task DeleteComment_RandomId()
       {
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
-         await pageRepository.DeleteComment(Guid.NewGuid()).ConfigureAwait(false);
+         await PageRepository.DeleteComment(Guid.NewGuid()).ConfigureAwait(false);
          // no assertion
       }
 
@@ -391,7 +369,6 @@ namespace RimuTec.PiranhaNH.Repositories
 
       private async Task<MyPage> MakePage(Guid siteId)
       {
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          MyPage page;
          using var api = CreateApi();
          page = await MyPage.CreateAsync(api).ConfigureAwait(false);
@@ -400,13 +377,12 @@ namespace RimuTec.PiranhaNH.Repositories
          page.Text = "Welcome";
          page.IsHidden = true;
          page.Published = DateTime.Now;
-         await pageRepository.Save(page).ConfigureAwait(false);
+         await PageRepository.Save(page).ConfigureAwait(false);
          return page;
       }
 
       private async Task<MyPage> MakePageWithBlocks(Guid siteId)
       {
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
          var page = await MakePage(siteId).ConfigureAwait(false);
          page.Blocks.Add(new Piranha.Extend.Blocks.TextBlock
          {
@@ -416,7 +392,7 @@ namespace RimuTec.PiranhaNH.Repositories
          {
             Body = "Ipsum Elit"
          });
-         await pageRepository.Save(page).ConfigureAwait(false);
+         await PageRepository.Save(page).ConfigureAwait(false);
          return page;
       }
 
@@ -451,6 +427,7 @@ namespace RimuTec.PiranhaNH.Repositories
          public HtmlField Footer { get; set; }
       }
 
+      private IPageRepository PageRepository {get;}
       private ISessionFactory SessionFactory { get; }
    }
 }
