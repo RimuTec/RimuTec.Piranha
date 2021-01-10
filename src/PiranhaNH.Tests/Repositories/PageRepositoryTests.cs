@@ -287,6 +287,43 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(1, comments.Count());
       }
 
+      [Test]
+      public async Task GetAllComments_ForAllPages()
+      {
+         const int with10Words = 10;
+         const int pageIndex = 0;
+         const int pageSize = 10;
+         var firstName = Faker.Name.FirstName();
+         var lastName = Faker.Name.LastName();
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         var firstComment = new Comment
+         {
+            Author = $"{firstName} {lastName}",
+            Email = Faker.Internet.Email(firstName),
+            Body = Faker.Lorem.Sentence(with10Words),
+            IsApproved = true
+         };
+         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+
+         firstName = Faker.Name.FirstName();
+         lastName = Faker.Name.LastName();
+         var secondPage = await MakePage(siteId).ConfigureAwait(false);
+         var secondComment = new Comment
+         {
+            Author = $"{firstName} {lastName}",
+            Email = Faker.Internet.Email(firstName),
+            Body = Faker.Lorem.Sentence(with10Words)
+         };
+         await pageRepository.SaveComment(secondPage.Id, secondComment).ConfigureAwait(false);
+
+         var comments = await pageRepository.GetAllComments(null, false, pageIndex, pageSize).ConfigureAwait(false);
+         Assert.AreEqual(1, comments.Count(p => p.Author == firstComment.Author), $"Author is '{firstComment.Author}'");
+         Assert.AreEqual(1, comments.Count(p => p.Author == secondComment.Author), $"Author is '{secondComment.Author}'");
+      }
+
       private async Task<Guid> MakeSite()
       {
          var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));

@@ -73,12 +73,16 @@ namespace RimuTec.PiranhaNH.Repositories
             var comments = new List<Comment>();
             var query = session.Query<PageCommentEntity>();
 
+            if( pageId.HasValue )
+            {
+               query = query.Where(c => c.Page.Id == pageId);
+            }
+
             if(onlyApproved) {
                query = query.Where(c => c.IsApproved);
             }
 
             var entities = await query
-               .Where(c => c.Page.Id == pageId)
                .ToListAsync()
                .ConfigureAwait(false);
             comments.AddRange(entities.Select(e =>
