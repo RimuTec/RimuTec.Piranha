@@ -73,23 +73,37 @@ namespace RimuTec.PiranhaNH.Repositories
          throw new NotImplementedException();
       }
 
-      public async Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, int page, int pageSize)
+      public Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, int page, int pageSize)
+      {
+         return GetAllComments(pageId, onlyApproved, false, page, pageSize);
+      }
+
+      public async Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, bool onlyPending, int page, int pageSize)
       {
          return await InTx(async session =>
          {
             var comments = new List<Comment>();
+
+            // Create base query
             var query = session.Query<PageCommentEntity>();
 
+            // Check if only should include a comments for a certain post
             if (pageId.HasValue)
             {
                query = query.Where(c => c.Page.Id == pageId);
             }
 
-            if (onlyApproved)
+            // Check if we should only include approved
+            if (onlyPending)
             {
-               query = query.Where(c => c.IsApproved);
+                query = query.Where(c => !c.IsApproved);
+            }
+            else if (onlyApproved)
+            {
+                query = query.Where(c => c.IsApproved);
             }
 
+            // Check if this is a paged query
             if (pageSize > 0)
             {
                query = query
@@ -97,6 +111,7 @@ namespace RimuTec.PiranhaNH.Repositories
                   .Take(pageSize);
             }
 
+            // Get the comments
             var entities = await query
                .ToListAsync()
                .ConfigureAwait(false);
@@ -123,7 +138,7 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public Task<IEnumerable<Comment>> GetAllPendingComments(Guid? pageId, int page, int pageSize)
       {
-         throw new NotImplementedException();
+         return GetAllComments(pageId, false, true, page, pageSize);
       }
 
       public async Task<T> GetById<T>(Guid id) where T : PageBase

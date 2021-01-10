@@ -323,6 +323,22 @@ namespace RimuTec.PiranhaNH.Repositories
          // no assertion
       }
 
+      [Test]
+      public async Task GetAllPendingComments()
+      {
+         const int pageIndex = 0;
+         const int pageSize = 10;
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         var firstComment = MakeComment();
+         await PageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         var secondComment = MakeComment();
+         secondComment.IsApproved = false;
+         await PageRepository.SaveComment(firstPage.Id, secondComment).ConfigureAwait(false);
+         var comments = await PageRepository.GetAllPendingComments(firstPage.Id, pageIndex, pageSize).ConfigureAwait(false);
+         Assert.AreEqual(1, comments.Count());
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)
