@@ -324,6 +324,27 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.IsNull(comment);
       }
 
+      [Test]
+      public async Task DeleteComment()
+      {
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var firstPage = await MakePage(siteId).ConfigureAwait(false);
+         var firstComment = MakeComment();
+         await pageRepository.SaveComment(firstPage.Id, firstComment).ConfigureAwait(false);
+         await pageRepository.DeleteComment(firstComment.Id).ConfigureAwait(false);
+         var comment = await pageRepository.GetCommentById(firstComment.Id).ConfigureAwait(false);
+         Assert.IsNull(comment);
+      }
+
+      [Test]
+      public async Task DeleteComment_RandomId()
+      {
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         await pageRepository.DeleteComment(Guid.NewGuid()).ConfigureAwait(false);
+         // no assertion
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)

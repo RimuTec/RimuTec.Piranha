@@ -37,9 +37,16 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task DeleteComment(Guid id)
+      public async Task DeleteComment(Guid id)
       {
-         throw new NotImplementedException();
+         await InTx(async session =>
+         {
+            var comment = await session.GetAsync<PageCommentEntity>(id).ConfigureAwait(false);
+            if (comment != null)
+            {
+               await session.DeleteAsync(comment).ConfigureAwait(false);
+            }
+         }).ConfigureAwait(false);
       }
 
       public Task DeleteDraft(Guid id)
@@ -73,7 +80,7 @@ namespace RimuTec.PiranhaNH.Repositories
             var comments = new List<Comment>();
             var query = session.Query<PageCommentEntity>();
 
-            if( pageId.HasValue )
+            if (pageId.HasValue)
             {
                query = query.Where(c => c.Page.Id == pageId);
             }
@@ -139,14 +146,14 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task<Comment> GetCommentById(Guid commentId)
       {
-         if(commentId == Guid.Empty)
+         if (commentId == Guid.Empty)
          {
             throw new ArgumentOutOfRangeException(nameof(commentId), "Must not be Guid.Empty [Code 210110-1823]");
          }
          return await InTx(async session =>
          {
             var comment = await session.GetAsync<PageCommentEntity>(commentId).ConfigureAwait(false);
-            if(comment != null)
+            if (comment != null)
             {
                return new Comment
                {
