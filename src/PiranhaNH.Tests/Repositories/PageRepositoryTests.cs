@@ -339,6 +339,15 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(1, comments.Count());
       }
 
+      [Test]
+      public async Task GetAllPendingComments_RandomId()
+      {
+         const int pageIndex = 0;
+         const int pageSize = 10;
+         var comments = await PageRepository.GetAllPendingComments(Guid.NewGuid(), pageIndex, pageSize).ConfigureAwait(false);
+         Assert.AreEqual(0, comments.Count());
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)

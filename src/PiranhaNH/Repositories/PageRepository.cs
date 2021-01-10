@@ -78,7 +78,7 @@ namespace RimuTec.PiranhaNH.Repositories
          return GetAllComments(pageId, onlyApproved, false, page, pageSize);
       }
 
-      public async Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, bool onlyPending, int page, int pageSize)
+      internal async Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, bool onlyPending, int page, int pageSize)
       {
          return await InTx(async session =>
          {
