@@ -401,6 +401,13 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual(draft.SiteId, retrieved.SiteId);
       }
 
+      [Test]
+      public async Task GetDraftById()
+      {
+         var retrieved = await PageRepository.GetDraftById<MyPage>(Guid.NewGuid()).ConfigureAwait(false);
+         Assert.IsNull(retrieved);
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)
