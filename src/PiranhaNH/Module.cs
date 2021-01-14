@@ -31,29 +31,33 @@ namespace RimuTec.PiranhaNH
          {
             cfg.CreateMap<AliasEntity, AliasEntity>()
                    .ForMember(a => a.Id, o => o.Ignore())
-                   .ForMember(a => a.Created, o => o.Ignore());
+                   .ForMember(a => a.Created, o => o.Ignore())
+                   ;
             cfg.CreateMap<CategoryEntity, CategoryEntity>()
                    .ForMember(c => c.Id, o => o.Ignore())
-                   .ForMember(c => c.Created, o => o.Ignore());
+                   .ForMember(c => c.Created, o => o.Ignore())
+                   ;
             cfg.CreateMap<CategoryEntity, Taxonomy>()
-                   .ForMember(c => c.Type, o => o.MapFrom(_ => TaxonomyType.Category));
-               //  cfg.CreateMap<Data.MediaFolder, Data.MediaFolder>()
-               //      .ForMember(f => f.Id, o => o.Ignore())
-               //      .ForMember(f => f.Created, o => o.Ignore())
-               //      .ForMember(f => f.Media, o => o.Ignore());
-               //  cfg.CreateMap<Data.MediaFolder, Models.MediaStructureItem>()
-               //      .ForMember(f => f.Level, o => o.Ignore())
-               //      .ForMember(f => f.FolderCount, o => o.Ignore())
-               //      .ForMember(f => f.MediaCount, o => o.Ignore())
-               //      .ForMember(f => f.Items, o => o.Ignore());
-               cfg.CreateMap<PageEntity, PageBase>()
-                   .ForMember(p => p.TypeId, o => o.MapFrom(m => m.PageType.Id))
-                   .ForMember(p => p.PrimaryImage, o => o.MapFrom(m => m.PrimaryImageId))
-                   .ForMember(p => p.OgImage, o => o.MapFrom(m => m.OgImageId))
-                   .ForMember(p => p.Permalink, o => o.MapFrom(m => "/" + m.Slug))
-                   .ForMember(p => p.Permissions, o => o.Ignore())
-                   .ForMember(p => p.Blocks, o => o.Ignore())
-                   .ForMember(p => p.CommentCount, o => o.Ignore());
+                   .ForMember(c => c.Type, o => o.MapFrom(_ => TaxonomyType.Category))
+                  //  cfg.CreateMap<Data.MediaFolder, Data.MediaFolder>()
+                  //      .ForMember(f => f.Id, o => o.Ignore())
+                  //      .ForMember(f => f.Created, o => o.Ignore())
+                  //      .ForMember(f => f.Media, o => o.Ignore());
+                  //  cfg.CreateMap<Data.MediaFolder, Models.MediaStructureItem>()
+                  //      .ForMember(f => f.Level, o => o.Ignore())
+                  //      .ForMember(f => f.FolderCount, o => o.Ignore())
+                  //      .ForMember(f => f.MediaCount, o => o.Ignore())
+                  //      .ForMember(f => f.Items, o => o.Ignore());
+                  ;
+            cfg.CreateMap<PageEntity, PageBase>()
+                .ForMember(p => p.TypeId, o => o.MapFrom(m => m.PageType.Id))
+                .ForMember(p => p.PrimaryImage, o => o.MapFrom(m => m.PrimaryImageId))
+                .ForMember(p => p.OgImage, o => o.MapFrom(m => m.OgImageId))
+                .ForMember(p => p.Permalink, o => o.MapFrom(m => "/" + m.Slug))
+                .ForMember(p => p.Permissions, o => o.Ignore())
+                .ForMember(p => p.Blocks, o => o.Ignore())
+                .ForMember(p => p.CommentCount, o => o.Ignore())
+                ;
             cfg.CreateMap<PageBase, PageEntity>()
                    .ForMember(p => p.ContentType, o => o.Ignore())
                    .ForMember(p => p.PrimaryImageId, o => o.MapFrom(m => m.PrimaryImage != null ? m.PrimaryImage.Id : null))
@@ -68,31 +72,36 @@ namespace RimuTec.PiranhaNH
                    .ForMember(p => p.Permissions, o => o.Ignore())
                    .ForMember(p => p.PageType, o => o.Ignore())
                    .ForMember(p => p.Site, o => o.Ignore())
-                   .ForMember(p => p.Parent, o => o.Ignore());
+                   .ForMember(p => p.Parent, o => o.Ignore())
+                   .ForMember(p => p.RevisionNumber, o => o.Ignore())
+                   ;
             cfg.CreateMap<PageEntity, SitemapItem>()
                    .ForMember(p => p.MenuTitle, o => o.Ignore())
                    .ForMember(p => p.Level, o => o.Ignore())
                    .ForMember(p => p.Items, o => o.Ignore())
                    .ForMember(p => p.PageTypeName, o => o.Ignore())
-                   .ForMember(p => p.Permalink, o => o.MapFrom(d => d.Parent == null  && d.SortOrder == 0 ? "/" : "/" + d.Slug))
+                   .ForMember(p => p.Permalink, o => o.MapFrom(d => d.Parent == null && d.SortOrder == 0 ? "/" : "/" + d.Slug))
                    //.ForMember(p => p.Permalink, o => o.MapFrom(d => !d.ParentId.HasValue && d.SortOrder == 0 ? "/" : "/" + d.Slug))
-                   .ForMember(p => p.Permissions, o => o.MapFrom(d => d.Permissions.Select(dp => dp.Permission).ToList()));
-               //  cfg.CreateMap<ParamEntity, ParamEntity>()
-               //      .ForMember(p => p.Id, o => o.Ignore())
-               //      .ForMember(p => p.Created, o => o.Ignore());
-               cfg.CreateMap<PostEntity, PostBase>()
-                   .ForMember(p => p.TypeId, o => o.MapFrom(m => m.PostTypeId))
-                   .ForMember(p => p.PrimaryImage, o => o.MapFrom(m => m.PrimaryImageId))
-                   .ForMember(p => p.OgImage, o => o.MapFrom(m => m.OgImageId))
-                   .ForMember(p => p.Permalink, o => o.Ignore())
-                   .ForMember(p => p.Permissions, o => o.Ignore())
-                   .ForMember(p => p.Blocks, o => o.Ignore())
-                   .ForMember(p => p.CommentCount, o => o.Ignore());
+                   .ForMember(p => p.Permissions, o => o.MapFrom(d => d.Permissions.Select(dp => dp.Permission).ToList()))
+            //  cfg.CreateMap<ParamEntity, ParamEntity>()
+            //      .ForMember(p => p.Id, o => o.Ignore())
+            //      .ForMember(p => p.Created, o => o.Ignore());
+                  ;
+            cfg.CreateMap<PostEntity, PostBase>()
+              .ForMember(p => p.TypeId, o => o.MapFrom(m => m.PostTypeId))
+              .ForMember(p => p.PrimaryImage, o => o.MapFrom(m => m.PrimaryImageId))
+              .ForMember(p => p.OgImage, o => o.MapFrom(m => m.OgImageId))
+              .ForMember(p => p.Permalink, o => o.Ignore())
+              .ForMember(p => p.Permissions, o => o.Ignore())
+              .ForMember(p => p.Blocks, o => o.Ignore())
+              .ForMember(p => p.CommentCount, o => o.Ignore())
+              ;
             cfg.CreateMap<PostTagEntity, Taxonomy>()
                    .ForMember(p => p.Id, o => o.MapFrom(m => m.TagId))
                    .ForMember(p => p.Title, o => o.MapFrom(m => m.Tag.Title))
                    .ForMember(p => p.Slug, o => o.MapFrom(m => m.Tag.Slug))
-                   .ForMember(p => p.Type, o => o.MapFrom(_ => TaxonomyType.Tag));
+                   .ForMember(p => p.Type, o => o.MapFrom(_ => TaxonomyType.Tag))
+                   ;
             cfg.CreateMap<PostBase, PostEntity>()
                    .ForMember(p => p.PostTypeId, o => o.MapFrom(m => m.TypeId))
                    .ForMember(p => p.CategoryId, o => o.MapFrom(m => m.Category.Id))
@@ -106,13 +115,16 @@ namespace RimuTec.PiranhaNH
                    .ForMember(p => p.PostType, o => o.Ignore())
                    .ForMember(p => p.Blog, o => o.Ignore())
                    .ForMember(p => p.Category, o => o.Ignore())
-                   .ForMember(p => p.Tags, o => o.Ignore());
+                   .ForMember(p => p.Tags, o => o.Ignore())
+                   ;
             cfg.CreateMap<SiteEntity, SiteEntity>()
                    .ForMember(s => s.Id, o => o.Ignore())
-                   .ForMember(s => s.Created, o => o.Ignore());
+                   .ForMember(s => s.Created, o => o.Ignore())
+                   ;
             cfg.CreateMap<SiteEntity, SiteContentBase>()
                    .ForMember(s => s.TypeId, o => o.MapFrom(m => m.SiteTypeId))
-                   .ForMember(s => s.Permissions, o => o.Ignore());
+                   .ForMember(s => s.Permissions, o => o.Ignore())
+                   ;
             cfg.CreateMap<SiteContentBase, SiteEntity>()
                    .ForMember(s => s.Id, o => o.Ignore())
                    .ForMember(s => s.SiteTypeId, o => o.Ignore())
@@ -125,12 +137,15 @@ namespace RimuTec.PiranhaNH
                    .ForMember(s => s.Fields, o => o.Ignore())
                    .ForMember(s => s.Created, o => o.Ignore())
                    .ForMember(s => s.LastModified, o => o.Ignore())
-                   .ForMember(s => s.ContentLastModified, o => o.Ignore());
+                   .ForMember(s => s.ContentLastModified, o => o.Ignore())
+                   ;
             cfg.CreateMap<TagEntity, TagEntity>()
                    .ForMember(t => t.Id, o => o.Ignore())
-                   .ForMember(t => t.Created, o => o.Ignore());
+                   .ForMember(t => t.Created, o => o.Ignore())
+                   ;
             cfg.CreateMap<TagEntity, Taxonomy>()
-                   .ForMember(t => t.Type, o => o.MapFrom(_ => TaxonomyType.Tag));
+                   .ForMember(t => t.Type, o => o.MapFrom(_ => TaxonomyType.Tag))
+                   ;
          });
          mapperConfig.AssertConfigurationIsValid();
          Mapper = mapperConfig.CreateMapper();

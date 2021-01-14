@@ -8,7 +8,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
       public override void Up()
       {
          Alter.Table("PageComment")
-            .AddColumn("LastModified").AsDateTime().NotNullable()
+            .AddColumn("LastModified").AsDateTime2().NotNullable()
             ;
       }
    }

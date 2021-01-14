@@ -9,10 +9,10 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
       {
          Create.Table("SiteType")
             .WithColumn("Id").AsString(64).NotNullable().PrimaryKey()
+            .WithColumn("Created").AsDateTime2().NotNullable()
+            .WithColumn("LastModified").AsDateTime2().NotNullable()
             .WithColumn("Body").AsString(int.MaxValue).Nullable()
             .WithColumn("CLRType").AsString(256).Nullable()
-            .WithColumn("Created").AsDateTime().NotNullable()
-            .WithColumn("LastModified").AsDateTime().NotNullable()
             ;
       }
    }

@@ -22,6 +22,8 @@ namespace RimuTec.PiranhaNH.Entities
       // /// </summary>
       // public Guid? ParentId { get; set; }
 
+      public virtual double RevisionNumber { get; set; }
+
       /// <summary>
       /// Gets/sets the type of content this page
       /// contains.

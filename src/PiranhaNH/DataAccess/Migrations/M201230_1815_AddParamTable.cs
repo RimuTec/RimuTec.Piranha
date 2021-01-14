@@ -12,8 +12,8 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
 
          Create.Table(tableName)
             .WithColumn("Id").AsGuid().PrimaryKey().NotNullable()
-            .WithColumn("Created").AsDateTime().NotNullable()
-            .WithColumn("LastModified").AsDateTime().NotNullable()
+            .WithColumn("Created").AsDateTime2().NotNullable()
+            .WithColumn("LastModified").AsDateTime2().NotNullable()
             .WithColumn("Description").AsString(256).Nullable()
             .WithColumn(keyColumn).AsString(64).NotNullable()
             .WithColumn("Value").AsString(int.MaxValue).Nullable()
@@ -22,6 +22,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
          Create.Index(MakeIndexName(tableName, keyColumn))
             .OnTable(tableName)
             .OnColumn(keyColumn)
+            .Unique()
             ;
       }
    }

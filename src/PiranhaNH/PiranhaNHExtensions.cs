@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Piranha;
 using Piranha.Repositories;
@@ -12,7 +13,14 @@ namespace RimuTec.PiranhaNH
       public static IServiceCollection AddPiranhaNH(this IServiceCollection services, ServiceLifetime scope = ServiceLifetime.Scoped)
       {
          // Add this module:
-         App.Modules.Register<Module>();
+         try 
+         {
+            App.Modules.Register<Module>();
+         }
+         catch(Exception ex)
+         {
+            throw;
+         }
 
          // Register repositories:
          services.Add(new ServiceDescriptor(typeof(IAliasRepository), typeof(AliasRepository), scope));

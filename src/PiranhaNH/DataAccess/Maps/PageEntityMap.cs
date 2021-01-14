@@ -10,10 +10,11 @@ namespace RimuTec.PiranhaNH.DataAccess.Maps
          Table("Page");
 
          Id(e => e.Id);
-
          Map(e => e.Created);
-         Map(e => e.IsHidden);
          Map(e => e.LastModified);
+
+         Map(e => e.RevisionNumber);
+         Map(e => e.IsHidden);
          Map(e => e.MetaDescription);
          Map(e => e.MetaKeywords);
          Map(e => e.NavigationTitle);

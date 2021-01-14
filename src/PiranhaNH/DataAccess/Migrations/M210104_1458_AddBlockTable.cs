@@ -9,8 +9,8 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
       {
          Create.Table("Block")
             .WithColumn("Id").AsGuid().NotNullable().PrimaryKey()
-            .WithColumn("Created").AsDateTime().NotNullable()
-            .WithColumn("LastModified").AsDateTime().NotNullable()
+            .WithColumn("Created").AsDateTime2().NotNullable()
+            .WithColumn("LastModified").AsDateTime2().NotNullable()
             .WithColumn("CLRType").AsString(256).NotNullable()
             .WithColumn("IsReusable").AsBoolean().NotNullable()
             .WithColumn("ParentId").AsGuid().Nullable()

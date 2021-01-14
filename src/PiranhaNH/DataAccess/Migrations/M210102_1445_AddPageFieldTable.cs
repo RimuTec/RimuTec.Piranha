@@ -19,7 +19,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
             .WithColumn("Value").AsString(int.MaxValue).Nullable()
             ;
 
-         Create.Index($"IDX_${tableName}_${pageIdColumn}")
+         Create.Index(MakeIndexName(tableName, pageIdColumn))
             .OnTable(tableName)
             .OnColumn(pageIdColumn)
             ;

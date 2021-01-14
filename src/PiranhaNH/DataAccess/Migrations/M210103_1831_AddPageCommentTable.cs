@@ -11,7 +11,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
          const string pageIdColumn = "PageId";
          Create.Table(tableName)
             .WithColumn("Id").AsGuid().NotNullable().PrimaryKey()
-            .WithColumn("Created").AsDateTime().NotNullable()
+            .WithColumn("Created").AsDateTime2().NotNullable()
             .WithColumn("UserId").AsString().Nullable()
             .WithColumn("Author").AsString(128).NotNullable()
             .WithColumn("Email").AsString(128).NotNullable()
@@ -21,7 +21,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
             .WithColumn(pageIdColumn).AsGuid().NotNullable()
             ;
 
-         Create.Index($"IDX_{tableName}_{pageIdColumn}")
+         Create.Index(MakeIndexName(tableName, pageIdColumn))
             .OnTable(tableName)
             .OnColumn(pageIdColumn)
             ;

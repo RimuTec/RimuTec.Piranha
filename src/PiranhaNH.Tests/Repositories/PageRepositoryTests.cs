@@ -383,6 +383,24 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.IsNull(retrieved);
       }
 
+      [Test]
+      public async Task SaveDraftGetById()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         using var api = CreateApi();
+         MyPage draft = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         draft.SiteId = siteId;
+         draft.Title = "Startpage";
+         draft.Text = "Welcome";
+         draft.IsHidden = true;
+         draft.Published = DateTime.Now;
+         await PageRepository.SaveDraft(draft).ConfigureAwait(false);
+         var draftId = draft.Id;
+         var retrieved = await PageRepository.GetDraftById<MyPage>(draftId).ConfigureAwait(false);
+         Assert.AreEqual(draft.Id, retrieved.Id);
+         Assert.AreEqual(draft.SiteId, retrieved.SiteId);
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)
@@ -429,9 +447,8 @@ namespace RimuTec.PiranhaNH.Repositories
 
       private async Task<MyPage> MakePage(Guid siteId)
       {
-         MyPage page;
          using var api = CreateApi();
-         page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
          page.SiteId = siteId;
          page.Title = "Startpage";
          page.Text = "Welcome";
