@@ -493,7 +493,7 @@ namespace RimuTec.PiranhaNH.Repositories
       }
 
       [Test]
-      public async Task GetDraftById()
+      public async Task GetDraftById_RandomId()
       {
          var retrieved = await PageRepository.GetDraftById<MyPage>(Guid.NewGuid()).ConfigureAwait(false);
          Assert.IsNull(retrieved);

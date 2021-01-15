@@ -14,7 +14,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Migrations
             .WithColumn("Id").AsGuid().NotNullable().PrimaryKey()
             .WithColumn("Created").AsDateTime2().NotNullable()
             .WithColumn("LastModified").AsDateTime2().NotNullable()
-            .WithColumn(pageIdColumn).AsGuid().Nullable()
+            .WithColumn(pageIdColumn).AsGuid().NotNullable()
             .WithColumn("Data").AsString(int.MaxValue).Nullable()
             .WithColumn(siteIdColumn).AsGuid().NotNullable()
             ;

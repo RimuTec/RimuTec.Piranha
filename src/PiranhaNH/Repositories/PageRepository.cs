@@ -64,14 +64,12 @@ namespace RimuTec.PiranhaNH.Repositories
                   .ToListAsync()
                   .ConfigureAwait(false)
                   ;
-               var toDelete = new List<PageRevisionEntity>(drafts);
-               foreach(var obj in toDelete)
+               foreach(var obj in new List<PageRevisionEntity>(drafts))
                {
                   await session.DeleteAsync(obj).ConfigureAwait(false);
                }
             }
          }).ConfigureAwait(false);
-         // throw new NotImplementedException();
       }
 
       public async Task<IEnumerable<Guid>> GetAll(Guid siteId)
@@ -233,13 +231,6 @@ namespace RimuTec.PiranhaNH.Repositories
             if (draft != null)
             {
                return JsonConvert.DeserializeObject<T>(draft.Data);
-               // // Transform data model
-               // var page = JsonConvert.DeserializeObject<PageEntity>(draft.Data);
-
-               // T pageBase = await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
-               // pageBase.SiteId = draft.SiteId;
-               // pageBase.Id = pageId;
-               // return pageBase;
             }
             return null;
          }).ConfigureAwait(false);
