@@ -24,7 +24,7 @@ namespace RimuTec.PiranhaNH.Repositories
       {
          SessionFactory = Database.CreateSessionFactory();
          _contentFactory = new ContentFactory(_services);
-         PageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         PageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory), Module.Mapper);
       }
 
       [OneTimeSetUp]
@@ -384,21 +384,112 @@ namespace RimuTec.PiranhaNH.Repositories
       }
 
       [Test]
-      public async Task SaveDraftGetById()
+      public async Task Save_WithoutPublishDateShouldNotHaveDraft()
       {
          var siteId = await MakeSite().ConfigureAwait(false);
          using var api = CreateApi();
-         MyPage draft = await MyPage.CreateAsync(api).ConfigureAwait(false);
-         draft.SiteId = siteId;
-         draft.Title = "Startpage";
-         draft.Text = "Welcome";
-         draft.IsHidden = true;
-         draft.Published = DateTime.Now;
-         await PageRepository.SaveDraft(draft).ConfigureAwait(false);
-         var draftId = draft.Id;
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = null;
+         await PageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         var draft = await PageRepository.GetDraftById<MyPage>(pageId).ConfigureAwait(false);
+         Assert.IsNull(draft);
+      }
+
+      [Test]
+      public async Task Save_WithPublishDateInFutureShouldNotHaveDraft()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         using var api = CreateApi();
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now.AddDays(42);
+         await PageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         var draft = await PageRepository.GetDraftById<MyPage>(pageId).ConfigureAwait(false);
+         Assert.IsNull(draft);
+      }
+
+      [Test]
+      public async Task Save_WithPublishDateInPastShouldNotHaveDraft()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         using var api = CreateApi();
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now.AddDays(-42);
+         await PageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         var draft = await PageRepository.GetDraftById<MyPage>(pageId).ConfigureAwait(false);
+         Assert.IsNull(draft);
+      }
+
+      [Test]
+      public async Task Save_UnpublishedTwiceDoesNotCreateDraft()
+      {
+         DateTime? unpublished = null;
+         var siteId = await MakeSite().ConfigureAwait(false);
+         using var api = CreateApi();
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = unpublished;
+         await PageRepository.Save(page).ConfigureAwait(false);
+         page.Text = $"Welcome, ${Name.FirstName()}";
+         await PageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         var draft = await PageRepository.GetDraftById<MyPage>(pageId).ConfigureAwait(false);
+         Assert.IsNull(draft);
+      }
+
+      [Test]
+      public async Task Save_PublishedAsDraft()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         using var api = CreateApi();
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now.AddDays(-1);
+         await PageRepository.Save(page).ConfigureAwait(false);
+         await PageRepository.SaveDraft(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         var retrieved = await PageRepository.GetDraftById<MyPage>(pageId).ConfigureAwait(false);
+         Assert.AreEqual(pageId, retrieved.Id);
+         Assert.AreEqual(siteId, retrieved.SiteId);
+      }
+
+      [Test]
+      public async Task DeleteDraft()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         using var api = CreateApi();
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now;
+         await PageRepository.Save(page).ConfigureAwait(false);
+         await PageRepository.SaveDraft(page).ConfigureAwait(false);
+         var draftId = page.Id;
+         await PageRepository.DeleteDraft(draftId).ConfigureAwait(false);
          var retrieved = await PageRepository.GetDraftById<MyPage>(draftId).ConfigureAwait(false);
-         Assert.AreEqual(draft.Id, retrieved.Id);
-         Assert.AreEqual(draft.SiteId, retrieved.SiteId);
+         Assert.IsNull(retrieved);
       }
 
       [Test]

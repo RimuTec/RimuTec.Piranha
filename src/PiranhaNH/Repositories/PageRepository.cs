@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Newtonsoft.Json;
 using NHibernate;
 using NHibernate.Linq;
@@ -15,9 +16,10 @@ namespace RimuTec.PiranhaNH.Repositories
 {
    internal class PageRepository : RepositoryBase, IPageRepository
    {
-      public PageRepository(NHibernate.ISessionFactory sessionFactory, IContentServiceFactory factory) : base(sessionFactory)
+      public PageRepository(NHibernate.ISessionFactory sessionFactory, IContentServiceFactory factory, IMapper mapper) : base(sessionFactory)
       {
          _contentService = factory.CreatePageService();
+         _mapper = mapper;
       }
 
       public Task CreateRevision(Guid id, int revisions)
@@ -50,9 +52,26 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task DeleteDraft(Guid id)
+      public async Task DeleteDraft(Guid pageId)
       {
-         throw new NotImplementedException();
+         await InTx(async session =>
+         {
+            var page = await session.GetAsync<PageEntity>(pageId).ConfigureAwait(false);
+            if(page != null)
+            {
+               var drafts = await session.Query<PageRevisionEntity>()
+                  .Where(r => r.Page == page && r.RevisionNumber >= page.RevisionNumber)
+                  .ToListAsync()
+                  .ConfigureAwait(false)
+                  ;
+               var toDelete = new List<PageRevisionEntity>(drafts);
+               foreach(var obj in toDelete)
+               {
+                  await session.DeleteAsync(obj).ConfigureAwait(false);
+               }
+            }
+         }).ConfigureAwait(false);
+         // throw new NotImplementedException();
       }
 
       public async Task<IEnumerable<Guid>> GetAll(Guid siteId)
@@ -198,28 +217,29 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public async Task<T> GetDraftById<T>(Guid draftId) where T : PageBase
+      public async Task<T> GetDraftById<T>(Guid pageId) where T : PageBase
       {
          return await InTx(async session =>
          {
             var revisionNumber = await session.Query<PageEntity>()
-                .Where(p => p.Id == draftId)
+                .Where(p => p.Id == pageId)
                 .Select(p => p.RevisionNumber)
                 .FirstOrDefaultAsync()
                 .ConfigureAwait(false);
             var draft = await session.Query<PageRevisionEntity>()
-                .FirstOrDefaultAsync(r => r.Id == draftId && r.RevisionNumber >= revisionNumber)
+                .FirstOrDefaultAsync(r => r.Page.Id == pageId && r.RevisionNumber >= revisionNumber)
                 .ConfigureAwait(false);
 
             if (draft != null)
             {
-               // Transform data model
-               var page = JsonConvert.DeserializeObject<PageEntity>(draft.Data);
+               return JsonConvert.DeserializeObject<T>(draft.Data);
+               // // Transform data model
+               // var page = JsonConvert.DeserializeObject<PageEntity>(draft.Data);
 
-               T pageBase = await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
-               pageBase.SiteId = draft.SiteId;
-               pageBase.Id = draftId;
-               return pageBase;
+               // T pageBase = await _contentService.TransformAsync<T>(page, App.PageTypes.GetById(page.PageType.Id), Process).ConfigureAwait(false);
+               // pageBase.SiteId = draft.SiteId;
+               // pageBase.Id = pageId;
+               // return pageBase;
             }
             return null;
          }).ConfigureAwait(false);
@@ -416,7 +436,9 @@ namespace RimuTec.PiranhaNH.Repositories
                }
                else
                {
-                  model.Id = await MakeDraft(session, page, revisionNumber, lastModified).ConfigureAwait(false);
+                  await MakeDraft(session, model, revisionNumber, lastModified, page).ConfigureAwait(false);
+                  // model.Id = await MakeDraft(session, page, revisionNumber, lastModified).ConfigureAwait(false);
+                  model.Id = page.Id;
                }
                return affected;
             }
@@ -653,10 +675,31 @@ namespace RimuTec.PiranhaNH.Repositories
             }
             else
             {
-               model.Id = await MakeDraft(session, page, revisionNumber, lastModified).ConfigureAwait(false);
+               await MakeDraft(session, model, revisionNumber, lastModified, page).ConfigureAwait(false);
+               model.Id = page.Id;
+               // model.Id = await MakeDraft(session, page, revisionNumber, lastModified).ConfigureAwait(false);
             }
             return affected;
          }).ConfigureAwait(false);
+      }
+
+      private async Task<Guid> MakeDraft<T>(ISession session, T model, double revisionNumber, DateTime lastModified, PageEntity page) where T : PageBase
+      {
+         var draft = await session.Query<PageRevisionEntity>()
+               .FirstOrDefaultAsync(r => r.Page.Id == model.Id && r.Created > lastModified)
+               .ConfigureAwait(false);
+         if (draft == null)
+         {
+            draft = new PageRevisionEntity
+            {
+               SiteId = model.SiteId,
+               Page = page
+            };
+            await session.SaveAsync(draft).ConfigureAwait(false);
+         }
+         draft.Data = JsonConvert.SerializeObject(model);
+         draft.RevisionNumber = revisionNumber;
+         return draft.Id;
       }
 
       private async Task<Guid> MakeDraft(ISession session, PageEntity page, double revisionNumber, DateTime lastModified)
@@ -676,7 +719,14 @@ namespace RimuTec.PiranhaNH.Repositories
             await session.SaveAsync(draft).ConfigureAwait(false);
          }
 
-         draft.Data = JsonConvert.SerializeObject(page);
+         //var unproxied = session.GetSessionImplementation().PersistenceContext.Unproxy(page);
+
+         var mapped = _mapper.Map<PageEntity,PageEntity>(page);
+
+         //var mappedPageType = _mapper.Map<PageTypeEntity>(page.PageType).GetType();
+
+         draft.Data = JsonConvert.SerializeObject(mapped);
+         // draft.Data = JsonConvert.SerializeObject(page);
          draft.RevisionNumber = revisionNumber;
 
          // NHibernate keeps track of changes and writes as needed.
@@ -750,5 +800,6 @@ namespace RimuTec.PiranhaNH.Repositories
       }
 
       private readonly IContentService<PageEntity, PageFieldEntity, PageBase> _contentService;
+      private readonly IMapper _mapper;
    }
 }

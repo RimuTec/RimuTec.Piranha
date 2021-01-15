@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Piranha;
@@ -29,10 +30,17 @@ namespace RimuTec.PiranhaNH
       {
          var mapperConfig = new MapperConfiguration(cfg =>
          {
-            cfg.CreateMap<AliasEntity, AliasEntity>()
-                   .ForMember(a => a.Id, o => o.Ignore())
-                   .ForMember(a => a.Created, o => o.Ignore())
-                   ;
+            cfg
+               .CreateMap<PageEntity, PageEntity>()
+               .ForMember(d => d.PageType, o => o.MapFrom(s => s.PageType))
+               .ForMember(d => d.Blocks, o => o.MapFrom(s => new List<PageBlockEntity>(s.Blocks)))
+               .ForAllOtherMembers(o => o.Ignore())
+               ;
+            cfg
+               .CreateMap<AliasEntity, AliasEntity>()
+               .ForMember(a => a.Id, o => o.Ignore())
+               .ForMember(a => a.Created, o => o.Ignore())
+               ;
             cfg.CreateMap<CategoryEntity, CategoryEntity>()
                    .ForMember(c => c.Id, o => o.Ignore())
                    .ForMember(c => c.Created, o => o.Ignore())

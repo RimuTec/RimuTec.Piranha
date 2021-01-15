@@ -43,7 +43,7 @@ namespace RimuTec.PiranhaNH
              new AliasRepository(sessionFactory),
              null,//  new ArchiveRepository(sessionFactory),
              null,//  new MediaRepository(sessionFactory),
-             new PageRepository(sessionFactory, serviceFactory),
+             new PageRepository(sessionFactory, serviceFactory, Module.Mapper),
              new PageTypeRepository(sessionFactory),
              new ParamRepository(sessionFactory),
              null,//  new PostRepository(sessionFactory, serviceFactory),

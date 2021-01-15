@@ -235,7 +235,7 @@ namespace RimuTec.PiranhaNH.Repositories
          _ = await MakePage(siteId).ConfigureAwait(false);
          var anotherPage = await MakePage(siteId).ConfigureAwait(false);
          anotherPage.Published = null;
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory), Module.Mapper);
          await pageRepository.Save(anotherPage).ConfigureAwait(false);
          var siteMap = await repository.GetSitemap(siteId, true).ConfigureAwait(false);
          Assert.AreEqual(1, siteMap.Count);
@@ -279,7 +279,7 @@ namespace RimuTec.PiranhaNH.Repositories
 
       private async Task<MyPage> MakePage(Guid siteId)
       {
-         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory));
+         var pageRepository = new PageRepository(SessionFactory, new ContentServiceFactory(_contentFactory), Module.Mapper);
          MyPage page;
          using var api = CreateApi();
          page = await MyPage.CreateAsync(api).ConfigureAwait(false);
