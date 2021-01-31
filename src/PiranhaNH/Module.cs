@@ -32,6 +32,7 @@ namespace RimuTec.PiranhaNH
          {
             cfg
                .CreateMap<PageEntity, PageEntity>()
+               .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
                .ForMember(d => d.PageType, o => o.MapFrom(s => s.PageType))
                .ForMember(d => d.Blocks, o => o.MapFrom(s => new List<PageBlockEntity>(s.Blocks)))
                .ForAllOtherMembers(o => o.Ignore())

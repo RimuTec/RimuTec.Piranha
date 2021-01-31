@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Newtonsoft.Json;
 using NHibernate;
 using NHibernate.Linq;
@@ -16,15 +17,64 @@ namespace RimuTec.PiranhaNH.Repositories
 {
    internal class PageRepository : RepositoryBase, IPageRepository
    {
-      public PageRepository(NHibernate.ISessionFactory sessionFactory, IContentServiceFactory factory, IMapper mapper) : base(sessionFactory)
+      public PageRepository(ISessionFactory sessionFactory, IContentServiceFactory factory, IMapper mapper) : base(sessionFactory)
       {
          _contentService = factory.CreatePageService();
          _mapper = mapper;
       }
 
-      public Task CreateRevision(Guid id, int revisions)
+      public async Task CreateRevision(Guid id, int revisions)
       {
-         throw new NotImplementedException();
+         await InTx(async session => {
+            var pageEntities = session.Query<PageEntity>().Where(p => p.Id == id);
+
+            if (pageEntities.Count() > 0)
+            {
+               var page = _mapper.ProjectTo<PageEntity>(pageEntities).First();
+
+               await session.SaveAsync(new PageRevisionEntity
+               {
+                  //Id = Guid.NewGuid(),
+                  Page = page,
+                  Data = JsonConvert.SerializeObject(page),
+                  Created = page.LastModified
+               }).ConfigureAwait(false);
+
+               //await _db.SaveChangesAsync().ConfigureAwait(false);
+
+               // Check if we have a limit set on the number of revisions
+               // we want to store.
+               if (revisions != 0)
+               {
+                  var existing = await session.Query<PageRevisionEntity>()
+                     .Where(r => r.Page == page)
+                     .OrderByDescending(r => r.Created)
+                     .Select(r => r.Id)
+                     .Take(revisions)
+                     .ToListAsync()
+                     .ConfigureAwait(false);
+
+                  if (existing.Count == revisions)
+                  {
+                     var toDelete = await session.Query<PageRevisionEntity>()
+                        .Where(r => r.Page == page && !existing.Contains(r.Id))
+                        .ToListAsync()
+                        .ConfigureAwait(false);
+
+                     if (toDelete.Count > 0)
+                     {
+                        foreach(var item in toDelete)
+                        {
+                           await session.DeleteAsync(item).ConfigureAwait(false);
+                        }
+                        // _db.PageRevisions.RemoveRange(removed);
+                        // await _db.SaveChangesAsync().ConfigureAwait(false);
+                     }
+                  }
+               }
+            }
+         }).ConfigureAwait(false);
+
       }
 
       public async Task<IEnumerable<Guid>> Delete(Guid pageId)
@@ -693,37 +743,37 @@ namespace RimuTec.PiranhaNH.Repositories
          return draft.Id;
       }
 
-      private async Task<Guid> MakeDraft(ISession session, PageEntity page, double revisionNumber, DateTime lastModified)
-      {
-         var draft = await session.Query<PageRevisionEntity>()
-               .FirstOrDefaultAsync(r => r.Page.Id == page.Id && r.Created > lastModified)
-               .ConfigureAwait(false);
+      // private async Task<Guid> MakeDraft(ISession session, PageEntity page, double revisionNumber, DateTime lastModified)
+      // {
+      //    var draft = await session.Query<PageRevisionEntity>()
+      //          .FirstOrDefaultAsync(r => r.Page.Id == page.Id && r.Created > lastModified)
+      //          .ConfigureAwait(false);
 
-         string pageId = "n/a";
-         pageId = page?.Id.ToString();
-         if (draft == null)
-         {
-            draft = new PageRevisionEntity
-            {
-               SiteId = page.Site.Id
-            };
-            await session.SaveAsync(draft).ConfigureAwait(false);
-         }
+      //    string pageId = "n/a";
+      //    pageId = page?.Id.ToString();
+      //    if (draft == null)
+      //    {
+      //       draft = new PageRevisionEntity
+      //       {
+      //          SiteId = page.Site.Id
+      //       };
+      //       await session.SaveAsync(draft).ConfigureAwait(false);
+      //    }
 
-         //var unproxied = session.GetSessionImplementation().PersistenceContext.Unproxy(page);
+      //    //var unproxied = session.GetSessionImplementation().PersistenceContext.Unproxy(page);
 
-         var mapped = _mapper.Map<PageEntity,PageEntity>(page);
+      //    var mapped = _mapper.Map<PageEntity,PageEntity>(page);
 
-         //var mappedPageType = _mapper.Map<PageTypeEntity>(page.PageType).GetType();
+      //    //var mappedPageType = _mapper.Map<PageTypeEntity>(page.PageType).GetType();
 
-         draft.Data = JsonConvert.SerializeObject(mapped);
-         // draft.Data = JsonConvert.SerializeObject(page);
-         draft.RevisionNumber = revisionNumber;
+      //    draft.Data = JsonConvert.SerializeObject(mapped);
+      //    // draft.Data = JsonConvert.SerializeObject(page);
+      //    draft.RevisionNumber = revisionNumber;
 
-         // NHibernate keeps track of changes and writes as needed.
-         //await _db.SaveChangesAsync().ConfigureAwait(false);
-         return draft.Id;
-      }
+      //    // NHibernate keeps track of changes and writes as needed.
+      //    //await _db.SaveChangesAsync().ConfigureAwait(false);
+      //    return draft.Id;
+      // }
 
       /// <summary>
       /// Performs additional processing and loads related models.

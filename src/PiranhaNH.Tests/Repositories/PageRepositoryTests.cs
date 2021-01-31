@@ -13,6 +13,7 @@ using Piranha.Repositories;
 using Piranha.Services;
 using RimuTec.Faker;
 using RimuTec.PiranhaNH.DataAccess;
+using RimuTec.PiranhaNH.Entities;
 using RimuTec.PiranhaNH.Services;
 
 namespace RimuTec.PiranhaNH.Repositories
@@ -497,6 +498,27 @@ namespace RimuTec.PiranhaNH.Repositories
       {
          var retrieved = await PageRepository.GetDraftById<MyPage>(Guid.NewGuid()).ConfigureAwait(false);
          Assert.IsNull(retrieved);
+      }
+
+      [Test]
+      public async Task CreateRevision()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         using var api = CreateApi();
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now;
+         await PageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         await PageRepository.CreateRevision(pageId, 10).ConfigureAwait(false);
+         using var session = SessionFactory.OpenSession();
+         using var txn = session.BeginTransaction();
+         var revisions = session.Query<PageRevisionEntity>().Where(p => p.Page.Id == pageId).ToList();
+         Assert.AreEqual(1, revisions.Count);
+         txn.Commit();
       }
 
       private class CommentComparer : IEqualityComparer<Comment>
