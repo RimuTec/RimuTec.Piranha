@@ -528,6 +528,30 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.AreEqual("Must not be negative. [210131-1808] (Parameter 'revisions')", ex.Message);
       }
 
+      [Test]
+      public async Task CreateRevisions_WithRemovalOfOld()
+      {
+         const int revisionCount = 2;
+         var siteId = await MakeSite().ConfigureAwait(false);
+         using var api = CreateApi();
+         MyPage page = await MyPage.CreateAsync(api).ConfigureAwait(false);
+         page.SiteId = siteId;
+         page.Title = "Startpage";
+         page.Text = "Welcome";
+         page.IsHidden = true;
+         page.Published = DateTime.Now;
+         await PageRepository.Save(page).ConfigureAwait(false);
+         var pageId = page.Id;
+         await PageRepository.CreateRevision(pageId, revisionCount).ConfigureAwait(false);
+         await PageRepository.CreateRevision(pageId, revisionCount).ConfigureAwait(false);
+         await PageRepository.CreateRevision(pageId, revisionCount).ConfigureAwait(false);
+         using var session = SessionFactory.OpenSession();
+         using var txn = session.BeginTransaction();
+         var revisions = session.Query<PageRevisionEntity>().Where(p => p.Page.Id == pageId).ToList();
+         Assert.AreEqual(revisionCount, revisions.Count);
+         txn.Commit();
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)

@@ -48,7 +48,7 @@ namespace RimuTec.PiranhaNH.Repositories
 
                // Check if we have a limit set on the number of revisions
                // we want to store.
-               if (revisions != 0)
+               if (revisions > 0)
                {
                   var existing = await session.Query<PageRevisionEntity>()
                      .Where(r => r.Page == page)
