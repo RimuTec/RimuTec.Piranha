@@ -521,6 +521,13 @@ namespace RimuTec.PiranhaNH.Repositories
          txn.Commit();
       }
 
+      [Test]
+      public void CreateRevision_RejectNegativeNumber()
+      {
+         var ex = Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => PageRepository.CreateRevision(Guid.NewGuid(), -1));
+         Assert.AreEqual("Must not be negative. [210131-1808] (Parameter 'revisions')", ex.Message);
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)

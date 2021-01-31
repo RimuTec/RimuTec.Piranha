@@ -54,7 +54,7 @@ namespace RimuTec.PiranhaNH.Entities
          var type = pageType.GetType().FullName;
          transaction.Commit();
       }
-      
+
       private async Task<Guid> MakeSite()
       {
          var repository = new SiteRepository(SessionFactory, new ContentServiceFactory(_contentFactory));

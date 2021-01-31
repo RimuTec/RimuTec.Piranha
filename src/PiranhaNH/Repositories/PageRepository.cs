@@ -25,6 +25,10 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task CreateRevision(Guid id, int revisions)
       {
+         if(revisions < 0)
+         {
+            throw new ArgumentOutOfRangeException(nameof(revisions), "Must not be negative. [210131-1808]");
+         }
          await InTx(async session => {
             var pageEntities = session.Query<PageEntity>().Where(p => p.Id == id);
 
@@ -74,7 +78,6 @@ namespace RimuTec.PiranhaNH.Repositories
                }
             }
          }).ConfigureAwait(false);
-
       }
 
       public async Task<IEnumerable<Guid>> Delete(Guid pageId)
