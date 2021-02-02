@@ -139,9 +139,9 @@ namespace RimuTec.PiranhaNH.Repositories
          }).ConfigureAwait(false);
       }
 
-      public Task<IEnumerable<Guid>> GetAllBlogs(Guid siteId)
+      public async Task<IEnumerable<Guid>> GetAllBlogs(Guid siteId)
       {
-         throw new NotImplementedException();
+         return new List<Guid>();
       }
 
       public Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, int page, int pageSize)

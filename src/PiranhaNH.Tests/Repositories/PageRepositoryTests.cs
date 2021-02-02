@@ -552,6 +552,14 @@ namespace RimuTec.PiranhaNH.Repositories
          txn.Commit();
       }
 
+      [Test]
+      public async Task GetAllBlogs()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var blogIds = await PageRepository.GetAllBlogs(siteId).ConfigureAwait(false);
+         Assert.IsEmpty(blogIds);
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)
@@ -630,11 +638,14 @@ namespace RimuTec.PiranhaNH.Repositories
          Piranha.App.Init(api);
 
          var builder = new PageTypeBuilder(api)
-                 .AddType(typeof(MyPage));
+            .AddType(typeof(MyPage))
+            .AddType(typeof(MyBlogPage))
+            ;
          builder.Build();
 
          var siteBuilder = new SiteTypeBuilder(api)
-             .AddType(typeof(MySiteContent));
+            .AddType(typeof(MySiteContent))
+            ;
          siteBuilder.Build();
       }
 
@@ -644,6 +655,15 @@ namespace RimuTec.PiranhaNH.Repositories
          [Region]
          public TextField Text { get; set; }
       }
+
+      [PageType(Title = "My BlogType", IsArchive = true)]
+        public class MyBlogPage : Page<MyBlogPage>
+        {
+            [Region]
+            public TextField Ingress { get; set; }
+            [Region]
+            public MarkdownField Body { get; set; }
+        }
 
       [SiteType(Title = "SiteType")]
       public class MySiteContent : SiteContent<MySiteContent>
