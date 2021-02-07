@@ -570,6 +570,21 @@ namespace RimuTec.PiranhaNH.Repositories
          Assert.Contains(blog.Id, blogIds.ToList());
       }
 
+      [Test]
+      public async Task GetAllBlogs_SortOrder()
+      {
+         var siteId = await MakeSite().ConfigureAwait(false);
+         var blog1 = await MakeBlog(siteId, 1).ConfigureAwait(false);
+         var blog2 = await MakeBlog(siteId, 3).ConfigureAwait(false);
+         var blog3 = await MakeBlog(siteId, 2).ConfigureAwait(false);
+         var blogIds = await PageRepository.GetAllBlogs(siteId).ConfigureAwait(false);
+         var array = blogIds.ToArray();
+         Assert.AreEqual(3, array.Length);
+         Assert.AreEqual(blog1.Id, array[0]);
+         Assert.AreEqual(blog3.Id, array[1]);
+         Assert.AreEqual(blog2.Id, array[2]);
+      }
+
       private class CommentComparer : IEqualityComparer<Comment>
       {
          public bool Equals(Comment x, Comment y)
@@ -627,12 +642,13 @@ namespace RimuTec.PiranhaNH.Repositories
          return page;
       }
 
-      private async Task<MyBlogPage> MakeBlog(Guid siteId)
+      private async Task<MyBlogPage> MakeBlog(Guid siteId, int sortOrder = 0)
       {
          using var api = CreateApi();
          MyBlogPage blog = await MyBlogPage.CreateAsync(api).ConfigureAwait(false);
          blog.SiteId = siteId;
          blog.Title = "Blog Archive";
+         blog.SortOrder = sortOrder;
          await PageRepository.Save(blog).ConfigureAwait(false);
          return blog;
       }

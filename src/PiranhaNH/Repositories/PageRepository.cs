@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Newtonsoft.Json;
 using NHibernate;
 using NHibernate.Linq;
@@ -152,6 +151,7 @@ namespace RimuTec.PiranhaNH.Repositories
          return await InTx(async session => {
             var pages = await session.Query<PageEntity>()
                .Where(p => p.Site.Id == siteId && p.ContentType == "Blog")
+               .OrderBy(p => p.SortOrder)
                .ToListAsync()
                .ConfigureAwait(false)
                ;
