@@ -106,7 +106,8 @@ namespace RimuTec.PiranhaNH.Persistence
             LastModified = DateTime.Now,
             Title = "Home page",
             PageType = pageType,
-            Site = site
+            Site = site,
+            ContentType = "Page"
          };
          var retrievedSiteTypeId = await session.SaveAsync(siteType).ConfigureAwait(false);
          var siteId = await session.SaveAsync(site).ConfigureAwait(false);

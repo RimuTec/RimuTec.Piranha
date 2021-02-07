@@ -27,6 +27,7 @@ namespace RimuTec.PiranhaNH.DataAccess.Maps
          Map(e => e.Title);
          Map(e => e.CloseCommentsAfterDays);
          Map(e => e.EnableComments);
+         Map(e => e.ContentType);
 
          References(e => e.PageType);
          References(e => e.Site);

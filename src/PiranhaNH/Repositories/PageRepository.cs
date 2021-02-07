@@ -141,7 +141,23 @@ namespace RimuTec.PiranhaNH.Repositories
 
       public async Task<IEnumerable<Guid>> GetAllBlogs(Guid siteId)
       {
-         return new List<Guid>();
+            // return await _db.Pages
+            //     .AsNoTracking()
+            //     .Where(p => p.SiteId == siteId && p.ContentType == "Blog")
+            //     .OrderBy(p => p.ParentId)
+            //     .ThenBy(p => p.SortOrder)
+            //     .Select(p => p.Id)
+            //     .ToListAsync()
+            //     .ConfigureAwait(false);
+         return await InTx(async session => {
+            var pages = await session.Query<PageEntity>()
+               .Where(p => p.Site.Id == siteId && p.ContentType == "Blog")
+               .ToListAsync()
+               .ConfigureAwait(false)
+               ;
+            return pages.Select(p => p.Id);
+         }).ConfigureAwait(false);
+         //return new List<Guid>();
       }
 
       public Task<IEnumerable<Comment>> GetAllComments(Guid? pageId, bool onlyApproved, int page, int pageSize)
@@ -503,7 +519,8 @@ namespace RimuTec.PiranhaNH.Repositories
                   //LastModified = DateTime.Now,
                   // ### Begin RT changes ###
                   Title = model.Title,
-                  Site = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false)
+                  Site = await session.GetAsync<SiteEntity>(model.SiteId).ConfigureAwait(false),
+                  ContentType = type.IsArchive ? "Blog" : "Page"
                   // ### End RT changes #####
                };
 
